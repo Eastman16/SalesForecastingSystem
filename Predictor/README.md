@@ -14,8 +14,12 @@ Installs:
 
 ## How to use:
 ### prophet_script.py
-Script takes in one argument:
-- path to your desired csv format file
+Script takes in one or more arguments:
+- path to your desired csv format file - **has to be first**!
+Extra arguments
+- -t length - desired prediction 'length' in days - default 365
+- -c name - include national holidays of 'name' country (eg. US)
+- -i industry_name - name of the industry
 
 Example:
 ```

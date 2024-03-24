@@ -5,6 +5,42 @@ import warnings
 import sys
 import numpy as np
 
+def includeEvents(startDate, endDate, industry):
+    events = None
+
+    #Check if COVID applies
+    if startDate <= pd.to_datetime('2021-06-10'):
+        lockdowns = pd.DataFrame([
+            {'holiday': 'lockdown_1', 'ds': '2020-03-21', 'lower_window': 0, 'ds_upper': '2020-06-06'},
+            {'holiday': 'lockdown_2', 'ds': '2020-07-09', 'lower_window': 0, 'ds_upper': '2020-10-27'},
+            {'holiday': 'lockdown_3', 'ds': '2021-02-13', 'lower_window': 0, 'ds_upper': '2021-02-17'},
+            {'holiday': 'lockdown_4', 'ds': '2021-05-28', 'lower_window': 0, 'ds_upper': '2021-06-10'},
+        ])
+        for t_col in ['ds', 'ds_upper']:
+            lockdowns[t_col] = pd.to_datetime(lockdowns[t_col])
+        lockdowns['upper_window'] = (lockdowns['ds_upper'] - lockdowns['ds']).dt.days
+
+        events = pd.concat((events, lockdowns))
+
+    match industry:
+    #case 'Ksiazki' | 'Books':
+    #case 'Chemia':
+    #case 'Spozywcze':
+    #case 'Zabawki':
+        case 'Biuro':
+            szkola = pd.DataFrame({
+                    'holiday': 'start-rok-szkolny',
+                    'ds': pd.to_datetime(['2018-09-01', '2019-09-01', '2020-09-01', '2021-09-01',
+                                        '2022-09-01', '2023-09-01', '2024-09-01', '2025-09-01',]),
+                    'lower_window': -15,
+                    'upper_window': 25,
+                })
+            events = pd.concat((events, szkola))
+        case _:
+            pass
+
+    return events
+
 def main(argv):
     warnings.simplefilter("ignore", category=FutureWarning)
 
@@ -48,20 +84,16 @@ def main(argv):
     
     df.head()
     df['ds'] = pd.to_datetime(df['ds'])
-    '''
-    szkola = pd.DataFrame({
-        'holiday': 'start-rok-szkolny',
-        'ds': pd.to_datetime(['2018-09-01', '2019-09-01', '2020-09-01', '2021-09-01']),
-        'lower_window': -15,
-        'upper_window': 25,
-    })
-    '''
-    m = Prophet() #holidays=szkola)
+    #print(df['ds'].iloc[-1] < pd.to_datetime('2024-01-01'))
+    
+    events = includeEvents(df['ds'].iloc[0], df['ds'].iloc[-1], industry)
+
+    m = Prophet(holidays=events)
     if (country != None):
         m.add_country_holidays(country_name=country)
     m.fit(df)
 
-    future = m.make_future_dataframe(periods=predictPeriod)
+    future = m.make_future_dataframe(periods=predictPeriod) #, freq='W-SUN')
 
     future.tail()
 
@@ -79,6 +111,7 @@ def main(argv):
     #    ['ds', 'start-rok-szkolny']][-10:])
 
     fig1 = m.plot(forecast)
+    plt.title('COVID lockdowns + school year start');
     fig2 = m.plot_components(forecast)
 
     plt.show()

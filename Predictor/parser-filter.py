@@ -1,4 +1,5 @@
 import sys
+from datetime import datetime
 
 def main(argv):
     try:
@@ -11,9 +12,11 @@ def main(argv):
     # utf8 = data.encode('utf-8')
     state = 0
     fileName = str(object='Data_')
-    currDate = "20.01.01"
-    currSales = 0.0
     tempSales = 0.0
+    dateFormat = '%y.%m.%d'
+    dateFormatEnd = "%Y-%m-%d"
+    data = {}
+    keyList = []
 
     for line in f:
         if state == 0:
@@ -30,16 +33,12 @@ def main(argv):
                 fileName += splitString[1].replace("\n", "")
                 if splitString[0] == "Poczatek":
                     fileName += "_"
-                    currDate = splitString[1].replace("\n", "")
                 else:
                     fileName += "_" + argv[2]
                     state = 2
         elif state == 2:
             # Create file
             if line == f"[Dokument]\n":
-                out = open("Data/"+fileName+".csv", "w")
-                out.write("\"ds\",\"y\"\n")
-                out.write("\"20"+currDate+"\",")
                 state = 3
         else:
             # Fill out the file
@@ -47,12 +46,12 @@ def main(argv):
                 splitString = line.split("=")
                 match splitString[0]:
                     case "DataSprzed":
-                        readDate = splitString[1].replace("\n", "")
+                        readDate = datetime.strptime(splitString[1].replace("\n", ""), dateFormat). \
+                            strftime(dateFormatEnd)
                         # If another fiscal day started, save the previous day data and start another
-                        if readDate != currDate:
-                            out.write(str(currSales)+"\n\"20"+readDate+"\",")           
-                            currSales = 0
-                            currDate = readDate
+                        if readDate not in data:
+                            data[readDate] = 0.0
+                            keyList.append(readDate)
                     case "Brutto":
                         tempSales = float(splitString[1].replace("\n", ""))
                     # case "Godzina" | "Netto" | "Vat":
@@ -60,16 +59,20 @@ def main(argv):
                         productTypes = splitString[1].replace("\n", "").split(",")[:-1] 
                         for mag in productTypes:
                             if int(mag) == int(argv[2]):
-                                currSales += tempSales
+                                data[readDate] += tempSales
                                 break
                     case default:
                         continue
 
-    # Make sure to save the last day
-    out.write(str(currSales)+"\n")
-
-    # Close files
+    # Close data file
     f.close()
+
+    out = open(fileName+"_abc.csv", "w")
+    out.write("\"ds\",\"y\"\n") 
+    
+    for date in keyList:
+        out.write(date+","+str(data[date])+"\n")
+
     out.close()
 
     return 0

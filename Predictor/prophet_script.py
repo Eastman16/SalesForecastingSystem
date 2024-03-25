@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import warnings
 import sys
 import numpy as np
+from datetime import datetime
 
 def includeEvents(startDate, endDate, industry):
     events = None
@@ -48,7 +49,10 @@ def main(argv):
     country = None
     predictPeriod = 365
     industry = None
-
+    export = False
+    exportFileName = None
+    #out = open("Data/"+fileName+".csv", "w")
+    #datetime.today().strftime('%Y-%m-%d')
     '''
     Parser for argv
     '''
@@ -65,6 +69,10 @@ def main(argv):
                 case '-i':
                     state = 'Industry'
                     print(state, end=": ")
+                case '-e':
+                    export = True
+                    exportFileName = "Export_"+datetime.today().strftime('%Y-%m-%d_%H-%M-%S')+".csv"
+                    print("Exporting dataframe to ", exportFileName)
                 case _:
                     match state:
                         case 'Time':
@@ -109,7 +117,8 @@ def main(argv):
     # plt.show()
     #print(forecast[(forecast['start-rok-szkolny']).abs() > 0][
     #    ['ds', 'start-rok-szkolny']][-10:])
-
+    if export == True:
+        forecast.to_csv(exportFileName, index=False)
     fig1 = m.plot(forecast)
     plt.title('COVID lockdowns + school year start');
     fig2 = m.plot_components(forecast)

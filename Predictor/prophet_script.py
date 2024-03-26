@@ -6,6 +6,17 @@ import sys
 import numpy as np
 from datetime import datetime
 
+def help():
+    print('Commands:')
+    print('-c\t\tSelect country of origin (eg. -c PL sets Poland as country of origin)')
+    print('-e\t\tExports data to a file')
+    print('-f\t\tFrequency of data collection (eg. -f W-SUN sets weekly frequency with Sunday as last day) - default daily')
+    print('\t\tOptions: D - daily\n\t\tW-SUN - weekly (Sunday)\n\t\tM - monthly')
+    print('-i\t\tDesired industry (eg. -i Biuro sets prediction events for office)')
+    print('-t\t\tDesired prediction time (eg. -t 1000 predicts for 1000 days forward)')
+    print('\nHOW TO USE\n')
+    print('python3 prophet_script.py file.csv -t 100\tOpens file.csv and predicts for 100 days forward')
+
 # TODO: Automatic dates calculation or saving the adjusted model and using it later on
 def includeEvents(startDate, endDate, industry):
     events = None
@@ -94,6 +105,7 @@ def main(argv):
     country = None
     predictPeriod = 365
     industry = None
+    frequency = 'D'
     export = False
     exportFileName = None
     #out = open("Data/"+fileName+".csv", "w")
@@ -102,32 +114,42 @@ def main(argv):
     Parser for argv
     '''
     state = None
-    if (len(argv) >= 2):
-        for a in argv[2:]:
-            match a:
-                case '-t':
-                    state = 'Time'
-                    print(state, end=": ")
-                case '-c':
-                    state = 'Country'
-                    print(state, end=": ")
-                case '-i':
-                    state = 'Industry'
-                    print(state, end=": ")
-                case '-e':
-                    export = True
-                    exportFileName = "Export_"+datetime.today().strftime('%Y-%m-%d_%H-%M-%S')+".csv"
-                    print("Exporting dataframe to ", exportFileName)
-                case _:
-                    match state:
-                        case 'Time':
-                            predictPeriod = int(a)
-                        case 'Country':
-                            country = a
-                        case 'Industry':
-                            industry = a
-                    state = None
-                    print(a)
+    # if (len(argv) >= 2):
+    for a in argv[1:]:
+        match a:
+            case '-t':
+                state = 'Time'
+                print(state, end=": ")
+            case '-c':
+                state = 'Country'
+                print(state, end=": ")
+            case '-i':
+                state = 'Industry'
+                print(state, end=": ")
+            case '-e':
+                export = True
+                exportFileName = "Export_"+datetime.today().strftime('%Y-%m-%d_%H-%M-%S')+".csv"
+                print("Exporting dataframe to ", exportFileName)
+            case '-f':
+                state = 'Frequency'
+                print(state, end=": ")
+            case '--help':
+                help()
+                return 0
+            case _:
+                match state:
+                    case 'Time':
+                        predictPeriod = int(a)
+                    case 'Country':
+                        country = a
+                    case 'Industry':
+                        industry = a
+                    case 'Frequency':
+                        frequency = a
+                    case _:
+                        fileName = a
+                state = None
+                print(a)
 
     try:
         df = pd.read_csv(fileName)
@@ -146,7 +168,7 @@ def main(argv):
         m.add_country_holidays(country_name=country)
     m.fit(df)
 
-    future = m.make_future_dataframe(periods=predictPeriod) #, freq='W-SUN')
+    future = m.make_future_dataframe(periods=predictPeriod, freq=frequency) #'W-SUN')
 
     future.tail()
 

@@ -1,9 +1,13 @@
 import pandas as pd
 from prophet import Prophet
+from prophet.serialize import model_to_json, model_from_json
+from prophet.diagnostics import cross_validation, performance_metrics
+from prophet.plot import plot_cross_validation_metric
 import matplotlib.pyplot as plt
 import warnings
 import sys
 import numpy as np
+import itertools
 from datetime import datetime
 
 def help():
@@ -13,7 +17,10 @@ def help():
     print('-f\t\tFrequency of data collection (eg. -f W-SUN sets weekly frequency with Sunday as last day) - default daily')
     print('\t\tOptions: D - daily\n\t\tW-SUN - weekly (Sunday)\n\t\tM - monthly')
     print('-i\t\tDesired industry (eg. -i Biuro sets prediction events for office)')
+    print('-p\t\tPlot results')
+    print('-s\t\tSaves model to a file')
     print('-t\t\tDesired prediction time (eg. -t 1000 predicts for 1000 days forward)')
+    print('-v\t\tEnable cross validation')
     print('\nHOW TO USE\n')
     print('python3 prophet_script.py file.csv -t 100\tOpens file.csv and predicts for 100 days forward')
 
@@ -107,7 +114,11 @@ def main(argv):
     industry = None
     frequency = 'D'
     export = False
+    saveModel = False
     exportFileName = None
+    modelFileName = None
+    plot = False
+    crossValidate = False
     #out = open("Data/"+fileName+".csv", "w")
     #datetime.today().strftime('%Y-%m-%d')
     '''
@@ -117,14 +128,8 @@ def main(argv):
     # if (len(argv) >= 2):
     for a in argv[1:]:
         match a:
-            case '-t':
-                state = 'Time'
-                print(state, end=": ")
             case '-c':
                 state = 'Country'
-                print(state, end=": ")
-            case '-i':
-                state = 'Industry'
                 print(state, end=": ")
             case '-e':
                 export = True
@@ -136,6 +141,21 @@ def main(argv):
             case '--help':
                 help()
                 return 0
+            case '-i':
+                state = 'Industry'
+                print(state, end=": ")
+            case '-p':
+                plot = True
+            case '-s':
+                saveModel = True
+                modelFileName = "Model_"+datetime.today().strftime('%Y-%m-%d_%H-%M-%S')+".json"
+                print('Saving model to ', modelFileName)
+            case '-t':
+                state = 'Time'
+                print(state, end=": ")
+            case '-v':
+                crossValidate = True
+                print('Cross validation enabled')
             case _:
                 match state:
                     case 'Time':
@@ -163,7 +183,7 @@ def main(argv):
     
     events = includeEvents(df['ds'].iloc[0], df['ds'].iloc[-1], industry)
 
-    m = Prophet(holidays=events)
+    m = Prophet(holidays=events, changepoint_prior_scale=0.001) # changepoint do testów
     if (country != None):
         m.add_country_holidays(country_name=country)
     m.fit(df)
@@ -172,25 +192,52 @@ def main(argv):
 
     future.tail()
 
+    if crossValidate == True:
+        '''
+        param_grid = {
+            'changepoint_prior_scale': [0.001, 0.01, 0.1, 0.5],
+            'seasonality_prior_scale': [0.01, 0.1, 1.0, 10.0],
+        }
+
+        all_params = [dict(zip(param_grid.keys(), v)) for v in itertools.product(*param_grid.values())]
+        rmses = []
+
+        for params in all_params:
+            m = Prophet(**params, holidays=events).fit(df)
+            df_cv = cross_validation(m, initial='730 days', period='30 days', horizon='365 days',
+                                 parallel='processes')
+            df_p = performance_metrics(df_cv, rolling_window=1)
+            rmses.append(df_p['rmse'].values[0])
+        #print(df_p)
+        tuning_results = pd.DataFrame(all_params)
+        tuning_results['rmse'] = rmses
+        best_params = all_params[np.argmin(rmses)]
+        print(best_params)
+        '''
+        df_cv = cross_validation(m, initial='730 days', period='30 days', horizon='365 days',
+                                 parallel='processes')
+
+        if plot == True:
+            fig = plot_cross_validation_metric(df_cv, metric='rmse')
+
     forecast = m.predict(future)
     forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail()
     maxVal = max(np.float32(forecast[['yhat_upper']]))
     forecast[['yhat', 'yhat_lower']] = np.clip(forecast[['yhat', 'yhat_lower']], 0.0, maxVal[0])
 
-    # ax.plot(m.history['ds'].dt.to_pydatetime(), m.history['y'], 'k.')
-
-    # plt.plot(forecast['ds'], forecast['yhat'])
-    # plt.ylabel('some numbers')
-    # plt.show()
-    #print(forecast[(forecast['start-rok-szkolny']).abs() > 0][
-    #    ['ds', 'start-rok-szkolny']][-10:])
     if export == True:
-        forecast.to_csv(exportFileName, index=False)
-    fig1 = m.plot(forecast)
-    plt.title('COVID lockdowns + school year start');
-    fig2 = m.plot_components(forecast)
+        forecast.to_csv(exportFileName, index=False)        
 
-    plt.show()
+    if saveModel == True:
+        with open(modelFileName, 'w') as fout:
+            fout.write(model_to_json(m))
+
+    if plot == True:
+        fig1 = m.plot(forecast)
+        plt.title('COVID lockdowns + school year start');
+        fig2 = m.plot_components(forecast)
+
+        plt.show()
 
     return 0
 

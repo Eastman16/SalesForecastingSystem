@@ -17,6 +17,7 @@ def help():
     print('-f\t\tFrequency of data collection (eg. -f W-SUN sets weekly frequency with Sunday as last day) - default daily')
     print('\t\tOptions: D - daily\n\t\tW-SUN - weekly (Sunday)\n\t\tM - monthly')
     print('-i\t\tDesired industry (eg. -i Biuro sets prediction events for office)')
+    print('-l\t\tLoad .json pre-fitted model')
     print('-p\t\tPlot results')
     print('-s\t\tSaves model to a file')
     print('-t\t\tDesired prediction time (eg. -t 1000 predicts for 1000 days forward)')
@@ -109,6 +110,7 @@ def main(argv):
     warnings.simplefilter("ignore", category=FutureWarning)
 
     fileName = argv[1]
+    modelName = None
     country = None
     predictPeriod = 365
     industry = None
@@ -144,6 +146,9 @@ def main(argv):
             case '-i':
                 state = 'Industry'
                 print(state, end=": ")
+            case '-l':
+                state = 'Loaded model'
+                print(state, end=": ")
             case '-p':
                 plot = True
             case '-s':
@@ -164,6 +169,8 @@ def main(argv):
                         country = a
                     case 'Industry':
                         industry = a
+                    case 'Loaded model':
+                        modelName = a
                     case 'Frequency':
                         frequency = a
                     case _:
@@ -179,43 +186,68 @@ def main(argv):
     
     df.head()
     df['ds'] = pd.to_datetime(df['ds'])
-    #print(df['ds'].iloc[-1] < pd.to_datetime('2024-01-01'))
     
     events = includeEvents(df['ds'].iloc[0], df['ds'].iloc[-1], industry)
 
-    m = Prophet(holidays=events, changepoint_prior_scale=0.001) # changepoint do testów
-    if (country != None):
-        m.add_country_holidays(country_name=country)
-    m.fit(df)
+    m = None
+    if (modelName != None):
+        try:
+            with open(modelName, 'r') as fin:
+                m = model_from_json(fin.read())
+        except:
+            print("ERROR: Can't open "+modelName+"!")
+            return 1
+    else:
+        m = Prophet(holidays=events) # changepoint do testów
+        if (country != None):
+            m.add_country_holidays(country_name=country)
+    
+        m.fit(df)
 
     future = m.make_future_dataframe(periods=predictPeriod, freq=frequency) #'W-SUN')
 
     future.tail()
 
     if crossValidate == True:
-        '''
         param_grid = {
             'changepoint_prior_scale': [0.001, 0.01, 0.1, 0.5],
             'seasonality_prior_scale': [0.01, 0.1, 1.0, 10.0],
+            'holidays_prior_scale': [0.01, 0.1, 1.0, 10.0],
+            'seasonality_mode': ['additive', 'multiplicative'],
+            # 'holidays': [None, events],
         }
 
         all_params = [dict(zip(param_grid.keys(), v)) for v in itertools.product(*param_grid.values())]
         rmses = []
 
         for params in all_params:
-            m = Prophet(**params, holidays=events).fit(df)
+            m = Prophet(**params, holidays=events)
+            
+            if (country != None):
+                m.add_country_holidays(country_name=country)
+
+            m.fit(df) 
+            
             df_cv = cross_validation(m, initial='730 days', period='30 days', horizon='365 days',
                                  parallel='processes')
             df_p = performance_metrics(df_cv, rolling_window=1)
             rmses.append(df_p['rmse'].values[0])
-        #print(df_p)
+        
         tuning_results = pd.DataFrame(all_params)
         tuning_results['rmse'] = rmses
+        print('Results:\n', tuning_results.sort_values(by=['rmse']).head(10))
+        
         best_params = all_params[np.argmin(rmses)]
-        print(best_params)
-        '''
-        df_cv = cross_validation(m, initial='730 days', period='30 days', horizon='365 days',
-                                 parallel='processes')
+        print('Best results:\n', best_params)
+
+        # Apply best params
+        m = Prophet(**best_params)
+        if (country != None):
+                m.add_country_holidays(country_name=country)
+
+        m.fit(df)
+        # df_cv = cross_validation(m, initial='730 days', period='30 days', horizon='365 days',
+                                # parallel='processes')
 
         if plot == True:
             fig = plot_cross_validation_metric(df_cv, metric='rmse')

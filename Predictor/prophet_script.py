@@ -22,11 +22,12 @@ def help():
     print('-s\t\tSaves model to a file')
     print('-t\t\tDesired prediction time (eg. -t 1000 predicts for 1000 days forward)')
     print('-v\t\tEnable cross validation')
+    print('-r\t\tEnabled, it defines the store as a stationary store')
     print('\nHOW TO USE\n')
     print('python3 prophet_script.py file.csv -t 100\tOpens file.csv and predicts for 100 days forward')
 
 # TODO: Automatic dates calculation or saving the adjusted model and using it later on
-def includeEvents(startDate, endDate, industry):
+def includeEvents(startDate, endDate, industry, isRetail, country):
     events = None
 
     #Check if COVID applies
@@ -42,6 +43,89 @@ def includeEvents(startDate, endDate, industry):
         lockdowns['upper_window'] = (lockdowns['ds_upper'] - lockdowns['ds']).dt.days
 
         events = pd.concat((events, lockdowns))
+
+        if country == 'PL' and isRetail:
+            trading_sundays = [
+                # 2018
+                '2018-01-07', '2018-01-14', '2018-01-21', '2018-01-28',
+                '2018-02-04', '2018-02-11', '2018-02-18', '2018-02-25',
+                '2018-03-04',
+                '2018-03-25',
+                '2018-04-29',
+                '2018-05-06', '2018-05-27',
+                '2018-06-03', '2018-06-24',
+                '2018-07-01', '2018-07-29',
+                '2018-08-05', '2018-08-26',
+                '2018-09-02', '2018-09-30',
+                '2018-10-07', '2018-10-28',
+                '2018-11-04', '2018-11-25',
+                '2018-12-02', '2018-12-16', '2018-12-23', '2018-12-30',
+
+                # 2019
+                '2019-01-27',
+                '2019-02-24',
+                '2019-03-31',
+                '2019-04-14', '2019-04-28',
+                '2019-05-26',
+                '2019-06-30',
+                '2019-07-28',
+                '2019-08-25',
+                '2019-09-29',
+                '2019-10-27',
+                '2019-11-24',
+                '2019-12-15', '2019-12-22', '2019-12-29',
+
+                # 2020
+                '2020-01-26',
+                '2020-04-05', '2020-04-26',
+                '2020-06-28',
+                '2020-08-30',
+                '2020-12-13', '2020-12-20',
+
+                # 2021
+                '2021-01-31',
+                '2021-03-28',
+                '2021-04-25',
+                '2021-06-27',
+                '2021-08-29',
+                '2021-12-12', '2021-12-19',
+
+                # 2022
+                '2022-01-30',
+                '2022-04-10', '2022-04-24',
+                '2022-06-26',
+                '2022-08-28',
+                '2022-12-11', '2022-12-18',
+
+                # 2023
+                '2023-01-29',
+                '2023-04-02', '2023-04-30',
+                '2023-06-25',
+                '2023-08-27',
+                '2023-12-17', '2023-12-24',
+
+                # 2024
+                '2024-01-28',
+                '2024-03-24', '2024-04-28',
+                '2024-06-30',
+                '2024-08-25',
+                '2024-12-15', '2024-12-22',
+            ]
+
+            if startDate < pd.to_datetime('2018-01-01'):
+                all_sundays = pd.date_range(start=pd.to_datetime('2018-01-01'), end=endDate, freq='W-SUN').strftime('%Y-%m-%d').tolist()
+            else:
+                all_sundays = pd.date_range(start=startDate, end=endDate, freq='W-SUN').strftime('%Y-%m-%d').tolist()
+
+            non_trading_sundays = list(set(all_sundays) - set(trading_sundays))
+
+            non_trading_sundays_df = pd.DataFrame({
+                'holiday': 'non_trading_sunday',
+                'ds': pd.to_datetime(non_trading_sundays),
+                'lower_window': 0,
+                'upper_window': 0,
+            })
+            events = pd.concat((events, non_trading_sundays_df))
 
     match industry:
         case 'Chemia':
@@ -121,6 +205,8 @@ def main(argv):
     modelFileName = None
     plot = False
     crossValidate = False
+    isRetail = False
+
     #out = open("Data/"+fileName+".csv", "w")
     #datetime.today().strftime('%Y-%m-%d')
     '''
@@ -161,6 +247,8 @@ def main(argv):
             case '-v':
                 crossValidate = True
                 print('Cross validation enabled')
+            case '-r':
+                isRetail = True
             case _:
                 match state:
                     case 'Time':
@@ -187,7 +275,7 @@ def main(argv):
     df.head()
     df['ds'] = pd.to_datetime(df['ds'])
     
-    events = includeEvents(df['ds'].iloc[0], df['ds'].iloc[-1], industry)
+    events = includeEvents(df['ds'].iloc[0], df['ds'].iloc[-1], industry, isRetail, country)
 
     m = None
     if (modelName != None):

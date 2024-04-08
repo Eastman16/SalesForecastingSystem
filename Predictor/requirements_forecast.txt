@@ -1,0 +1,8 @@
+plotly
+statsforecast
+datasetsforecast
+mlforecast
+lightgbm
+xgboost
+sklearn
+neuralforecast

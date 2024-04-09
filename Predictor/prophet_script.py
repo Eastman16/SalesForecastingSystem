@@ -6,6 +6,7 @@ from prophet.plot import plot_cross_validation_metric
 import matplotlib.pyplot as plt
 import warnings
 import sys
+import math
 import numpy as np
 import itertools
 from datetime import datetime
@@ -350,13 +351,32 @@ def main(argv):
     forecast[['yhat', 'yhat_lower']] = np.clip(forecast[['yhat', 'yhat_lower']], 0.0, maxVal[0])
 
     if export == True:
-        forecast.to_csv(exportFileName, index=False)     
+        exportForecast = forecast
+        exportForecast['y'] = df['y']
+        bWzgl = []
+        for iter, row in exportForecast.iterrows():
+            if row['y'] != 0:
+                result = abs(row['yhat']-row['y'])/row['y']*100
+                if math.isnan(result) == False:
+                    bWzgl.append(str(result) + "%")
+                else:
+                    bWzgl.append("")
+            else:
+                bWzgl.append("0%")
+
+        exportForecast['b. względny'] = bWzgl
+        exportForecast.to_csv(exportFileName, index=False)     
 
     if saveModel == True:
         with open(modelFileName, 'w') as fout:
             fout.write(model_to_json(m))
 
     if plot == True:
+        plt.plot(df['ds'], df['y'])
+        plt.plot(df['ds'], df['y'], '.k')
+        plt.grid(alpha=.5)
+        plt.xlabel('Data')
+        plt.ylabel('Sprzedaż')
         fig1 = m.plot(forecast)
         plt.title('COVID lockdowns + school year start');
         fig2 = m.plot_components(forecast)

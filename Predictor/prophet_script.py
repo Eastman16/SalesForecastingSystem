@@ -273,7 +273,6 @@ def main(argv):
         print("ERROR: Can't open "+fileName+"!")
         return 1
     
-    df.head()
     df['ds'] = pd.to_datetime(df['ds'])
     
     events = includeEvents(df['ds'].iloc[0], df['ds'].iloc[-1], industry, isRetail, country)
@@ -365,7 +364,7 @@ def main(argv):
                 bWzgl.append("0%")
 
         exportForecast['b. względny'] = bWzgl
-        exportForecast.to_csv(exportFileName, index=False)     
+        exportForecast.to_csv(exportFileName, index=False)
 
     if saveModel == True:
         with open(modelFileName, 'w') as fout:

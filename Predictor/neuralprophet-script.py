@@ -114,8 +114,9 @@ def main(argv):
             return 1
     else:
         m = NeuralProphet()
-        events = includeEvents(df['ds'].iloc[0], df['ds'].iloc[-1], industry, isRetail, country)
-        m.add_events(events)
+        #events = ps.includeEvents(df['ds'].iloc[0], df['ds'].iloc[-1], industry, isRetail, country)
+        #print(events)
+        #m.add_events(events)
         if (country != None):
             m.add_country_holidays(country_name=country)
         metrics = m.fit(df)

@@ -41,7 +41,6 @@ def main(argv):
 
     # 1706 RMSE @ 128;1024;511;dart;0.05;any;
     # probably best would be 64;2048;128;gbdt;0.05
-    '''
     lgb_params = {
         'num_leaves': [64, 128],
         #'n_estimators': [1024, 2048],
@@ -102,16 +101,27 @@ def main(argv):
 
     plot2 = StatsForecast.plot(df, fcst_mlf_df, engine='plotly')
     plot2.show()
-    '''
+    
 ###############################################################
+    
     xgb_params = {
         'booster': ['gbtree', 'dart'],
         'subsample': [0.5, 1.0],
         'max_depth': [6, 12],
-        'eta': [0.15, 0.3, 0.5],
+        'max_bin': [128, 256, 512],
+        'eta': [0.15, 0.3, 0.5, 0.75],
         'gamma': [0.0, 0.1, 0.25],
     }
-
+    '''
+    xgb_params = {
+        'booster': ['dart'],
+        'subsample': [0.5],
+        'max_depth': [12],
+        'max_bin': [128],
+        'eta': [0.3],
+        'gamma': [0.1],
+    }
+    '''
     all_params = [dict(zip(xgb_params.keys(), v)) for v in itertools.product(*xgb_params.values())]
     rmses = []
     maes = []
@@ -158,13 +168,13 @@ def main(argv):
     )
     mlf.fit(df)
 
-    fcst_mlf_df = mlf.predict(360, level=[90])
+    fcst_mlf_df = mlf.predict(365, level=[90])
 
     plot2 = StatsForecast.plot(df, fcst_mlf_df, engine='plotly')
     plot2.show()
 
+    print('Results LGBM:\n', tuning_results_lgbm.head(10))
     print('Results XGB:\n', tuning_results_xgb.head(10))
-    # print('Results LGBM:\n', tuning_results_lgbm.head(10))
 
     return 0
 

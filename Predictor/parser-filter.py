@@ -69,6 +69,9 @@ def main(argv):
 
     out = open(fileName+"_abc.csv", "w")
     out.write("\"ds\",\"y\"\n") 
+
+    data = dict(sorted(data.items(), key=lambda item: item[1]))
+    keyList.sort()
     
     for date in keyList:
         out.write(date+","+str(data[date])+"\n")

@@ -6,6 +6,7 @@ from prophet.plot import plot_cross_validation_metric
 import matplotlib.pyplot as plt
 import warnings
 import sys
+import math
 import numpy as np
 import itertools
 from datetime import datetime
@@ -181,7 +182,7 @@ def includeEvents(startDate, endDate, industry, isRetail, country):
                     'holiday': 'start-rok-szkolny',
                     'ds': pd.to_datetime(['2018-09-01', '2019-09-01', '2020-09-01', '2021-09-01',
                                         '2022-09-01', '2023-09-01', '2024-09-01', '2025-09-01',]),
-                    'lower_window': -15,
+                    'lower_window': -15, #-7,
                     'upper_window': 25,
                 })
             events = pd.concat((events, szkola))
@@ -294,14 +295,15 @@ def main(argv):
 
     future = m.make_future_dataframe(periods=predictPeriod, freq=frequency) #'W-SUN')
 
-    future.tail()
-
+    # Best results:
+    # {'changepoint_prior_scale': 0.001, 'seasonality_prior_scale': 0.1, 'holidays_prior_scale': 0.01, 'seasonality_mode': 'additive', 'changepoint_range': 0.95}
     if crossValidate == True:
         param_grid = {
             'changepoint_prior_scale': [0.001, 0.01, 0.1, 0.5],
             'seasonality_prior_scale': [0.01, 0.1, 1.0, 10.0],
             'holidays_prior_scale': [0.01, 0.1, 1.0, 10.0],
             'seasonality_mode': ['additive', 'multiplicative'],
+            'changepoint_range': [0.8, 0.9, 0.95],
             # 'holidays': [None, events],
         }
 
@@ -324,6 +326,9 @@ def main(argv):
         tuning_results = pd.DataFrame(all_params)
         tuning_results['rmse'] = rmses
         print('Results:\n', tuning_results.sort_values(by=['rmse']).head(10))
+
+        if export == True:
+            tuning_results.sort_values(by=['rmse']).to_csv("tune_results.csv", index=False)
         
         best_params = all_params[np.argmin(rmses)]
         print('Best results:\n', best_params)
@@ -346,18 +351,42 @@ def main(argv):
     forecast[['yhat', 'yhat_lower']] = np.clip(forecast[['yhat', 'yhat_lower']], 0.0, maxVal[0])
 
     if export == True:
-        forecast.to_csv(exportFileName, index=False)        
+        exportForecast = forecast
+        exportForecast['y'] = df['y']
+        bWzgl = []
+        for iter, row in exportForecast.iterrows():
+            if row['y'] != 0:
+                result = abs(row['yhat']-row['y'])/row['y']*100
+                if math.isnan(result) == False:
+                    bWzgl.append(str(result) + "%")
+                else:
+                    bWzgl.append("")
+            else:
+                bWzgl.append("0%")
+
+        exportForecast['b. względny'] = bWzgl
+        exportForecast.to_csv(exportFileName, index=False)     
 
     if saveModel == True:
         with open(modelFileName, 'w') as fout:
             fout.write(model_to_json(m))
 
     if plot == True:
+        plt.plot(df['ds'], df['y'])
+        plt.plot(df['ds'], df['y'], '.k')
+        plt.grid(alpha=.5)
+        plt.xlabel('Data')
+        plt.ylabel('Sprzedaż')
         fig1 = m.plot(forecast)
         plt.title('COVID lockdowns + school year start');
         fig2 = m.plot_components(forecast)
 
         plt.show()
+
+    df_cv = cross_validation(m, initial='730 days', period='30 days', horizon='365 days',
+                                 parallel='processes')
+    df_p = performance_metrics(df_cv, metrics=['mse', 'rmse', 'mae', 'mape', 'mdape', 'smape'], rolling_window=1)
+    print(df_p)
 
     return 0
 

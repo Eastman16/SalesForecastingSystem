@@ -35,6 +35,8 @@ def main(argv):
                     fileName += "_"
                 else:
                     fileName += "_" + argv[2]
+                    if argv[3] == '-stats':
+                        fileName += "_stats"
                     state = 2
         elif state == 2:
             # Create file
@@ -67,14 +69,22 @@ def main(argv):
     # Close data file
     f.close()
 
-    out = open(fileName+"_abc.csv", "w")
+    out = open(fileName+".csv", "w")
     out.write("\"ds\",\"y\"\n") 
 
     data = dict(sorted(data.items(), key=lambda item: item[1]))
     keyList.sort()
     
-    for date in keyList:
-        out.write(date+","+str(data[date])+"\n")
+    if argv[3] == '-stats':
+        out.write("\"unique_id\",\"ds\",\"y\"\n") 
+
+        for date in keyList:
+            out.write(argv[2]+","+date+","+str(data[date])+"\n")
+    else:
+        out.write("\"ds\",\"y\"\n") 
+
+        for date in keyList:
+            out.write(date+","+str(data[date])+"\n")
 
     out.close()
 

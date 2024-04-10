@@ -70,6 +70,10 @@ def main(argv):
     f.close()
 
     out = open(fileName+".csv", "w")
+    out.write("\"ds\",\"y\"\n") 
+
+    data = dict(sorted(data.items(), key=lambda item: item[1]))
+    keyList.sort()
     
     if argv[3] == '-stats':
         out.write("\"unique_id\",\"ds\",\"y\"\n") 

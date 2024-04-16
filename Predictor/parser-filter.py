@@ -1,5 +1,5 @@
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def main(argv):
     try:
@@ -17,6 +17,26 @@ def main(argv):
     dateFormatEnd = "%Y-%m-%d"
     data = {}
     keyList = []
+    toDay = True
+    toWeek = False
+    toMonth = False
+    stats = False
+
+    for a in argv[1:]:
+        if '-d' in a:
+            toDay = True
+            toWeek = False
+            toMonth = False
+        elif '-w' in a:
+            toDay = False
+            toWeek = True
+            toMonth = False
+        elif '-m' in a:
+            toDay = False
+            toWeek = False
+            toMonth = True
+        if '-stats' in a:
+            stats = True
 
     for line in f:
         if state == 0:
@@ -35,8 +55,12 @@ def main(argv):
                     fileName += "_"
                 else:
                     fileName += "_" + argv[2]
-                    if argv[3] == '-stats':
+                    if stats:
                         fileName += "_stats"
+                    if toWeek:
+                        fileName += "_w"
+                    elif toMonth:
+                        fileName += "_m"
                     state = 2
         elif state == 2:
             # Create file
@@ -73,18 +97,74 @@ def main(argv):
 
     data = dict(sorted(data.items(), key=lambda item: item[1]))
     keyList.sort()
-    
-    if argv[3] == '-stats':
-        out.write("\"unique_id\",\"ds\",\"y\"\n") 
 
-        for date in keyList:
-            out.write(argv[2]+","+date+","+str(data[date])+"\n")
+    if stats:
+        out.write("\"unique_id\",\"ds\",\"y\"\n")
+        if toDay:
+            for date in keyList:
+                out.write(argv[2] + "," + date + "," + str(data[date]) + "\n")
+        elif toWeek:
+            weekly_sales = {}
+
+            for date in keyList:
+                week_start = datetime.strptime(date, dateFormatEnd) - timedelta(
+                    days=datetime.strptime(date, dateFormatEnd).weekday())
+                if week_start not in weekly_sales:
+                    weekly_sales[week_start] = 0.0
+                weekly_sales[week_start] += data[date]
+
+            for week_start, sales in weekly_sales.items():
+                week_end = week_start + timedelta(days=6)
+                out.write(argv[2] + "," + week_end.strftime(dateFormatEnd) + "," + str(sales) + "\n")
+
+        elif toMonth:
+            monthly_sales = {}
+
+            for date in keyList:
+                month_start = datetime.strptime(date, dateFormatEnd).replace(day=1)
+                if month_start not in monthly_sales:
+                    monthly_sales[month_start] = 0.0
+                monthly_sales[month_start] += data[date]
+
+            for month_start, sales in monthly_sales.items():
+                if month_start.month == 12:
+                    month_end = month_start.replace(day=1, month=1, year=month_start.year + 1) - timedelta(days=1)
+                else:
+                    month_end = month_start.replace(day=1, month=month_start.month + 1) - timedelta(days=1)
+                out.write(argv[2] + "," + month_end.strftime(dateFormatEnd) + "," + str(sales) + "\n")
     else:
-        out.write("\"ds\",\"y\"\n") 
+        out.write("\"ds\",\"y\"\n")
+        if toDay:
+            for date in keyList:
+                out.write(date + "," + str(data[date]) + "\n")
+        elif toWeek:
+            weekly_sales = {}
 
-        for date in keyList:
-            out.write(date+","+str(data[date])+"\n")
+            for date in keyList:
+                week_start = datetime.strptime(date, dateFormatEnd) - timedelta(
+                    days=datetime.strptime(date, dateFormatEnd).weekday())
+                if week_start not in weekly_sales:
+                    weekly_sales[week_start] = 0.0
+                weekly_sales[week_start] += data[date]
 
+            for week_start, sales in weekly_sales.items():
+                week_end = week_start + timedelta(days=6)
+                out.write(week_end.strftime(dateFormatEnd)+ "," + str(sales) + "\n")
+        elif toMonth:
+            monthly_sales = {}
+
+            for date in keyList:
+                month_start = datetime.strptime(date, dateFormatEnd).replace(day=1)
+                if month_start not in monthly_sales:
+                    monthly_sales[month_start] = 0.0
+                monthly_sales[month_start] += data[date]
+
+            for month_start, sales in monthly_sales.items():
+                if month_start.month == 12:
+                    month_end = month_start.replace(day=1, month=1, year=month_start.year + 1) - timedelta(days=1)
+                else:
+                    month_end = month_start.replace(day=1, month=month_start.month + 1) - timedelta(days=1)
+                out.write(month_end.strftime(dateFormatEnd) + "," + str(sales) + "\n")
     out.close()
 
     return 0

@@ -51,6 +51,11 @@ Own file parser from EDI format to csv
 Script takes in one arguments:
 - path to your data in EDI format
 
+Optional second (only one):
+- -d - exports data day by day (default)
+- -w - exports data weekly
+- -m - exports data monthly
+
 Example:
 ```
 python3 .\parser-basic.py your_own_data_file.extension
@@ -61,11 +66,16 @@ Own file parser from EDI format to csv
 
 Script takes in two or three arguments:
 - path to your data in EDI format
-- number of the distribution center
-Optional third:
-- -stats - exports csv file in Forecast libs friendly format
+- number of the distribution center 
 
+Optional third:
+- -stats - exports csv file in Forecast libs friendly format 
+
+Optional fourth (only one):
+- -d - exports data day by day (default)
+- -w - exports data weekly
+- -m - exports data monthly
 Example:
 ```
-python3 .\parser-basic.py your_own_data_file.extension 9
+python3 .\parser-filter.py your_own_data_file.extension 9
 ```

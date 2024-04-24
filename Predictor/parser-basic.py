@@ -83,8 +83,12 @@ def main(argv):
     # Close data file
     f.close()
 
-    out = open(fileName+"_abc.csv", "w")
+    out = open(fileName+"_basic.csv", "w")
     out.write("\"ds\",\"y\"\n")
+
+    data = dict(sorted(data.items(), key=lambda item: item[1]))
+    keyList.sort()
+
     if toDay:
         for date in keyList:
             out.write(date + "," + str(data[date]) + "\n")

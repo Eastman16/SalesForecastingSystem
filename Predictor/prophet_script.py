@@ -1,15 +1,20 @@
 import pandas as pd
+
 from prophet import Prophet
 from prophet.serialize import model_to_json, model_from_json
 from prophet.diagnostics import cross_validation, performance_metrics
 from prophet.plot import plot_cross_validation_metric
+
 import matplotlib.pyplot as plt
+
 import warnings
 import sys
-import math
 import numpy as np
 import itertools
 from datetime import datetime
+
+# Our
+from utils import exportToFile
 
 def help():
     print('Commands:')
@@ -345,27 +350,13 @@ def main(argv):
             fig = plot_cross_validation_metric(df_cv, metric='rmse')
 
     forecast = m.predict(future)
-    forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail()
     maxVal = max(np.float32(forecast[['yhat_upper']]))
     forecast[['yhat', 'yhat_lower']] = np.clip(forecast[['yhat', 'yhat_lower']], 0.0, maxVal[0])
 
     if export == True:
-        exportForecast = forecast
-        exportForecast['y'] = df['y']
-        bWzgl = []
-        for iter, row in exportForecast.iterrows():
-            if row['y'] != 0:
-                result = abs(row['yhat']-row['y'])/row['y']*100
-                if math.isnan(result) == False:
-                    bWzgl.append(str(result) + "%")
-                else:
-                    bWzgl.append("")
-            else:
-                bWzgl.append("0%")
-
-        exportForecast['b. względny'] = bWzgl
-        exportForecast.to_csv(exportFileName, index=False)
-
+        exportToFile(forecast, df, "Prophet", 
+            "Export_"+datetime.today().strftime('%Y-%m-%d_%H-%M-%S'))
+        
     if saveModel == True:
         with open(modelFileName, 'w') as fout:
             fout.write(model_to_json(m))

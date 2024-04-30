@@ -1,0 +1,14 @@
+[
+    {
+        "Type": "Tydzień"
+    },
+    {
+        "Type": "Miesiąc"
+    },
+    {
+        "Type": "Kwartał"
+    },
+    {
+        "Type": "Rok"
+    }
+]

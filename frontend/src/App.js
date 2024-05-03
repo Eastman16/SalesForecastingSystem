@@ -11,6 +11,9 @@ import ImportAllegroD from "./components/ImportAllegroDemand";
 import ImportWooS from "./components/ImportWooSales";
 import ImportWooD from "./components/ImportWooDemand";
 import OutputDemand from "./components/OutputDemand";
+import OutputSales from "./components/OutputSales";
+
+
 
 function App() {
   return (
@@ -28,6 +31,7 @@ function App() {
           <Route path="/import-woo-sale" element={<ImportWooS />} />
           <Route path="/import-woo-demand" element={<ImportWooD />} />
           <Route path="/output-demand" element={<OutputDemand />} />
+          <Route path="/output-sales" element={<OutputSales />} />
         </Routes>
       </div>
     </Router>

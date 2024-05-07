@@ -23,6 +23,24 @@ def help():
     print('\nHOW TO USE\n')
     print('python3 prophet_script.py file.csv -t 100\tOpens file.csv and predicts for 100 days forward')
 
+def testEvents():
+    date_ranges = [
+        (pd.date_range(start='2020-03-21', end='2020-06-06'), '2020-03-21', '2020-06-06'),
+        (pd.date_range(start='2020-07-09', end='2020-10-27'), '2020-07-09', '2020-10-27'),
+        (pd.date_range(start='2021-02-13', end='2021-02-17'), '2021-02-13', '2021-02-17'),
+        (pd.date_range(start='2021-05-28', end='2021-06-10'), '2021-05-28', '2021-06-10')
+    ]
+
+    dates = [date for sublist in date_ranges for date in sublist]
+
+    return pd.DataFrame(
+        {
+            "event":"Lockdown",
+            "ds": dates
+        }
+    )
+
+
 def main(argv):
     warnings.simplefilter("ignore", category=FutureWarning)
 
@@ -39,6 +57,8 @@ def main(argv):
     plot = False
     crossValidate = False
     isRetail = False
+    compare = False
+    cmpfilename = None
 
     '''
     Parser for argv
@@ -50,9 +70,13 @@ def main(argv):
             case '-c':
                 state = 'Country'
                 print(state, end=": ")
+            case '-x':
+                state = 'Check'
+                compare = True
+                print(state, end=": ")
             case '-e':
                 export = True
-                exportFileName = "Export_" + datetime.today().strftime('%Y-%m-%d_%H-%M-%S') + ".csv"
+                exportFileName = "Export_" + datetime.today().strftime('%Y-%m-%d_%H-%M-%S') + "_" + str(industry) + ".csv"
                 print("Exporting dataframe to ", exportFileName)
             case '-f':
                 state = 'Frequency'
@@ -92,6 +116,8 @@ def main(argv):
                         modelName = a
                     case 'Frequency':
                         frequency = a
+                    case 'Check':
+                        cmpfilename = a
                     case _:
                         fileName = a
                 state = None
@@ -113,32 +139,51 @@ def main(argv):
             print("ERROR: Can't open "+modelName+"!")
             return 1
     else:
+        #events = testEvents()
         m = NeuralProphet()
-        #events = ps.includeEvents(df['ds'].iloc[0], df['ds'].iloc[-1], industry, isRetail, country)
-        #print(events)
-        #m.add_events(events)
-        if (country != None):
-            m.add_country_holidays(country_name=country)
+        #m.add_events("Lockdown")
+
+        #if (country != None):
+        #    m.add_country_holidays(country_name=country)
+        #print(df)
         metrics = m.fit(df)
 
 
-
-
     # Specify the forecast horizon
-    future = m.make_future_dataframe(df, periods=predictPeriod)  # Forecasting 30 days into the future
+    future = m.make_future_dataframe(df, n_historic_predictions=True, periods=predictPeriod)  # Forecasting 30 days into the future
+
+    #print(future)
 
     forecast = m.predict(future)
 
     if export and exportFileName:
         forecast.to_csv(exportFileName, index=False)
 
-    if saveModel == True:
+    if compare:
+        try:
+            cdf = pd.read_csv(cmpfilename)
+        except Exception as e:
+            print("ERROR: Can't open " + cmpfilename + ":", e)
+            return 1
+        cmp = cdf.tail(predictPeriod)
+        #   print(cmp)
+        a = forecast[['ds', 'yhat1']].tail(365)
+        #print(a)
+        cnct = pd.concat([cmp.ds, cmp.y, a.yhat1], axis=1)
+        print(cnct)
+        print("RSME: ", ((cnct.y - cnct.yhat1) ** 2).mean() ** .5)
+        print("MAE: ", (abs(cnct.y - cnct.yhat1)).mean())
+        cnct['APE'] = abs((cnct.y - cnct.yhat1) / cnct.y) * 100
+        print("MDAPE:", cnct.APE.median())
+        print("SDAPE:", cnct.APE.mean())
+
+    if saveModel:
         with open(modelFileName, 'w') as fout:
             fout.write(model_to_json(m))
 
-    if plot == True:
+    if plot:
         fig1 = m.plot(forecast)
-        plt.title('COVID lockdowns + school year start');
+        plt.title('COVID lockdowns + school year start')
         fig2 = m.plot_components(forecast)
 
         plt.show()

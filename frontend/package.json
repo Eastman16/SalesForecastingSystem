@@ -5,6 +5,7 @@
   "dependencies": {
     "@canvasjs/react-charts": "^1.0.2",
     "@craco/craco": "^7.1.0",
+    "@date-io/dayjs": "^3.0.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@mui/material": "^5.15.15",

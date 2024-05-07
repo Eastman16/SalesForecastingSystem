@@ -3,21 +3,11 @@ import Attributes from "./Attributes";
 import { useNavigate } from "react-router-dom";
 
 const ImportFileSale = () => {
-  const [isClicked, setIsClicked] = useState(false);
   const fileInputRef = useRef(null); // Referencja do elementu input typu file
   const [isAttributesReady, setIsAttributesReady] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleButtonClick = () => {
-    setIsClicked(true); // Aktywacja efektu animacji
-    setTimeout(() => {
-      setIsClicked(false); // Zresetowanie stanu przycisku po animacji
-      if (isAttributesReady) {
-        fileInputRef.current.click(); // Jeśli wszystkie dropdowny są gotowe, otwieramy okno wyboru pliku
-      }
-    }, 150); // Czas trwania animacji
-  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0]; // Pobieramy pierwszy wybrany plik

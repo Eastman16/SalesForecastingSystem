@@ -1,19 +1,8 @@
-import React, { useState } from "react";
-import Attributes from "./Attributes";
-import { useNavigate } from "react-router-dom";
-import WooCommerce from "../assets/woocommerce.png";
+import React from "react";
+import AttributesWoo from "./AttributesWoo";
 
 const ImportWooSales = () => {
-  let navigate = useNavigate();
-  const [isClicked, setIsClicked] = useState(false);
-
-  const handleButtonClick = () => {
-    setIsClicked(true); // Activate animation effect
-    setTimeout(() => {
-      setIsClicked(false); // Reset the button state
-      navigate("/sales-prediction"); // Navigate after a slight delay to show the effect
-    }, 150); // Duration of the animation
-  };
+  
 
   return (
     <>
@@ -30,27 +19,8 @@ const ImportWooSales = () => {
           </div>
           <div className="" style={{ marginTop: "20px" }}>
             <div className="top-[40x] h-[70px]">
-              <Attributes />
+              <AttributesWoo />
             </div>
-          </div>
-          <div className="" style={{ marginTop: "250px" }}>
-            <button
-              onClick={handleButtonClick}
-              className={`py-3 px-6 bg-ifirma-orange text-black font-bold rounded-full flex justify-between items-center transition duration-150 ease-in-out transform ${
-                isClicked
-                  ? "scale-90 opacity-75"
-                  : "hover:bg-ifirma-orange-darker hover:scale-105 active:scale-95"
-              }`}
-              style={{ width: "250px" }}
-            >
-              <span style={{ marginLeft: "10px" }}>Wczytaj plik z</span>
-              <img
-                src={WooCommerce}
-                alt="Logo"
-                className=""
-                style={{ width: "70px", height: "auto", marginRight: "10px" }}
-              />
-            </button>
           </div>
         </div>
       </div>

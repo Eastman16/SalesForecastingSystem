@@ -18,3 +18,4 @@ This project is an advanced demand forecasting system designed specifically for 
 ![1](https://github.com/Eastman16/DemandForecastingSystem/assets/129722863/f177c88c-25fc-4ce1-ae1f-7d2c91bbb044)
 ![2](https://github.com/Eastman16/DemandForecastingSystem/assets/129722863/3f738008-02bd-4ee7-b2e8-939fc5da6c0a)
 ![3](https://github.com/Eastman16/DemandForecastingSystem/assets/129722863/e4ac4b16-5448-47c0-ab01-1965fe3ac6d8)
+![image4](https://github.com/Eastman16/DemandForecastingSystem/assets/129722863/89fbea38-6b87-41f7-a1d4-14516b2279fb)

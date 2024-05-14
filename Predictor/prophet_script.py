@@ -16,6 +16,8 @@ from datetime import datetime
 # Our
 from utils import exportToFile
 
+from io import StringIO
+
 def help():
     print('Commands:')
     print('-c\t\tSelect country of origin (eg. -c PL sets Poland as country of origin)')
@@ -378,9 +380,9 @@ def main(argv):
     df_p = performance_metrics(df_cv, metrics=['mse', 'rmse', 'mae', 'mape', 'mdape', 'smape'], rolling_window=1)
     print(df_p)
 
-def useProphet(country, industry, isRetail, periods, freq, filename):
+def useProphet(country, industry, isRetail, periods, freq, file):
     try:
-        df = pd.read_csv(filename)
+        df = pd.read_csv(StringIO(file), sep=";")
     except:
         print("ERROR: Can't open ""!")
         return 1

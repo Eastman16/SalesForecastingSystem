@@ -33,7 +33,7 @@ function Attributes() {
     if (file) {
       const fileName = file.name;
       const extension = fileName.split(".").pop(); // Pobieramy rozszerzenie pliku
-      if (extension === "xlsx" || extension === "txt") {
+      if (extension === "xlsx" || extension === "txt" || extension === "csv") {
         console.log("Wybrany plik:", file);
         // Tutaj możesz wykonać operacje na wybranym pliku
       } else {
@@ -84,7 +84,7 @@ function Attributes() {
       <div className="flex justify-center" style={{ marginTop: "20px" }}>
         <input
           type="file"
-          accept=".xlsx, .txt"
+          accept=".xlsx, .txt, .csv"
           ref={fileInputRef}
           style={{ display: "none" }}
           onChange={handleFileChange}

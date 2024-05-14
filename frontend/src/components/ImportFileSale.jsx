@@ -9,12 +9,13 @@ const ImportFileSale = () => {
   const navigate = useNavigate();
 
 
+
   const handleFileChange = (e) => {
     const file = e.target.files[0]; // Pobieramy pierwszy wybrany plik
     if (file) {
       const fileName = file.name;
       const extension = fileName.split(".").pop(); // Pobieramy rozszerzenie pliku
-      if (extension === "xlsx" || extension === "txt") {
+      if (extension === "xlsx" || extension === "txt" || extension === "csv") {
         console.log("Wybrany plik:", file);
         // Tutaj możesz wykonać operacje na wybranym pliku
         navigate("/sales-prediction"); // Nawigujemy do strony z prognozą sprzedaży
@@ -68,15 +69,6 @@ const ImportFileSale = () => {
             <div className="top-[40x] h-[70px]">
               <Attributes onReadyChange={setIsAttributesReady} />
             </div>
-          </div>
-          <div className="" style={{ marginTop: "230px" }}>
-            <input
-              type="file"
-              accept=".xlsx, .txt" // Akceptujemy tylko pliki Excel i tekstowe
-              ref={fileInputRef} // Przypisujemy referencję do inputa
-              style={{ display: "none" }} // Ukrywamy input
-              onChange={handleFileChange} // Obsługa zmiany pliku
-            />
           </div>
         </div>
       </div>

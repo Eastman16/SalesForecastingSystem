@@ -378,7 +378,28 @@ def main(argv):
     df_p = performance_metrics(df_cv, metrics=['mse', 'rmse', 'mae', 'mape', 'mdape', 'smape'], rolling_window=1)
     print(df_p)
 
-    return 0
+def useProphet(country, industry, isRetail, periods, freq, filename):
+    try:
+        df = pd.read_csv(filename)
+    except:
+        print("ERROR: Can't open ""!")
+        return 1
+
+    df['ds'] = pd.to_datetime(df['ds'])
+    events = includeEvents(df['ds'].iloc[0], df['ds'].iloc[-1], industry, isRetail, country)
+
+    m = Prophet(holidays=events)  # changepoint do testów
+
+    if (country != None):
+        m.add_country_holidays(country_name=country)
+    m.fit(df)
+
+    future = m.make_future_dataframe(periods=periods, freq=freq)  # 'W-SUN')
+
+    forecast = m.predict(future)
+    forecast[['yhat', 'yhat_lower']] = np.clip(forecast[['yhat', 'yhat_lower']], 0.0, 99999999)
+
+    return forecast[['ds', 'yhat']].to_json()
 
 if __name__ == '__main__':
     main(sys.argv)

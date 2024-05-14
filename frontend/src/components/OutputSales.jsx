@@ -13,33 +13,22 @@ const OutputSales = () => {
   const [selectedDate, setSelectedDate] = useState(null);
 
   // Sample data for the list of dates and values
-  const dateValues = [
-    { date: "2020-10-12", value: 25 },
-    { date: "2020-10-13", value: 35 },
-    { date: "2020-10-14", value: 45 },
-    { date: "2020-10-15", value: 55 },
-    { date: "2020-10-16", value: 65 },
-    { date: "2020-10-17", value: 75 },
-    { date: "2020-10-18", value: 85 },
-    { date: "2020-10-19", value: 95 },
-    { date: "2020-10-20", value: 105 },
-    { date: "2020-10-21", value: 115 },
-    // Add more if needed
-  ];
+  const storedData = sessionStorage.getItem('myData');
+  const dateValues = Object.values(JSON.parse(storedData) || {});
 
   const filterDateValues = () => {
     if (!selectedDate) {
       return dateValues; // Return all values if no date is selected
     }
     const formattedDate = selectedDate.format("YYYY-MM-DD");
-    return dateValues.filter(item => item.date === formattedDate);
+    return dateValues.filter(item => item.ds === formattedDate);
   };
 
   const downloadCSV = (data) => {
     const csvRows = []; // Header
     // Directly use the dates if they're in the correct format
     data.forEach(item => {
-      csvRows.push(`${item.date},${item.value}`);
+      csvRows.push(`${item.ds},${item.yhat}`);
     });
 
     const csvString = csvRows.join('\n');
@@ -90,7 +79,7 @@ const OutputSales = () => {
               <div className="overflow-y-auto" style={{ height: "380px", marginTop: "20px", paddingRight: "10px" }}>
                 {filterDateValues().map((item, index) => (
                   <div key={index} className="p-2">
-                    {`${item.date}, ${item.value}`}
+                    {`${item.ds}, ${item.yhat}`}
                     <div
                       className="border-b border-1 border-black"
                       style={{ width: "240px" }}

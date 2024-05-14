@@ -6,9 +6,42 @@ import country from "../lists/countryList.json";
 import predictionLength from "../lists/predictionLength.json";
 import predictionFrequency from "../lists/predictionFrequency.json";
 import sunday from "../lists/sunday.json";
+import { useNavigate } from "react-router-dom";
+
+
+function convertToNumericPeriod(periodType, frequencyType) {
+  let days = 0;
+  switch (periodType) {
+    case "Tydzień":
+      days = 7;
+      break;
+    case "Miesiąc":
+      days = 30; 
+      break;
+    case "Kwartał":
+      days = 90;
+      break;
+    case "Rok":
+      days = 365;
+      break;
+    default:
+      days = 0; 
+  }
+
+  // Ajust days for weekly frequency
+  if (frequencyType === "Tygodniowa") {
+    return days / 7; // Convert total days to weeks
+  } else if (frequencyType === "Miesięczna") {
+    return days / 30;
+  } else {
+    return days;
+  }
+}
 
 function Attributes() {
   //const navigate = useNavigate();
+
+  const navigate = useNavigate();
 
   const [selectedOptions, setSelectedOptions] = useState({
     businessType: "",
@@ -41,12 +74,16 @@ function Attributes() {
         try {
           const formData = new FormData();
           formData.append("file", file);
-          formData.append("model", selectedOptions.businessType);
           formData.append("country", selectedOptions.country);
           formData.append("industry", selectedOptions.businessType); // Assuming 'businessType' as 'industry'
-          formData.append("isRetail", selectedOptions.sunday === "Tak" ? 1 : 0); // Assuming sunday sales as retail indicator
-          formData.append("period", selectedOptions.predictionLength);
-          formData.append("frequency", selectedOptions.predictionFrequency);
+          formData.append("isRetail", selectedOptions.sunday === "Tak" ? true : false); // Assuming sunday sales as retail indicator
+          const numericPeriod = convertToNumericPeriod(selectedOptions.predictionLength, selectedOptions.predictionFrequency);
+          formData.append("period", numericPeriod);
+        
+          // Convert frequency description to a single character (D, W, M)
+          const frequencyChar = selectedOptions.predictionFrequency === "Dzienna" ? "D" :
+                              selectedOptions.predictionFrequency === "Tygodniowa" ? "W" : "M";
+          formData.append("frequency", frequencyChar);
 
           const response = await axios.post('http://192.168.195.63:5000/predict', formData, {
             headers: {
@@ -54,7 +91,11 @@ function Attributes() {
             },
           });
 
-          console.log("Server response:", response.data);
+          const data =  response.data
+          console.log("Server response:", data);
+
+          sessionStorage.setItem('myData', JSON.stringify(data));
+          navigate('/output-sales');
         } catch (error) {
           console.error("Error uploading file:", error);
         }

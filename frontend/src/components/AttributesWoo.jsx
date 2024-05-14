@@ -1,12 +1,17 @@
 import React, { useState, useRef } from "react";
+import axios from 'axios';
 import SelectItem from "./SelectItem";
 import businessType from "../lists/businessType.json";
 import country from "../lists/countryList.json";
 import predictionLength from "../lists/predictionLength.json";
 import predictionFrequency from "../lists/predictionFrequency.json";
 import WooCommerce from "../assets/woocommerce.png";
+import convertToNumericPeriod from "./Attributes";
+import { useNavigate } from "react-router-dom";
 
 function AttributesWoo() {
+    const navigate = useNavigate();
+
     const [selectedOptions, setSelectedOptions] = useState({
         businessType: "",
         country: "",
@@ -27,18 +32,44 @@ function AttributesWoo() {
 
     const fileInputRef = useRef(null);
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0]; 
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
         if (file) {
-            const fileName = file.name;
-            const extension = fileName.split(".").pop(); 
-            if (extension === "xlsx" || extension === "txt") {
-                console.log("Wybrany plik:", file);
-            } else {
-                alert("Wybierz plik w formacie .xlsx lub .txt");
+          const fileName = file.name;
+          const extension = fileName.split(".").pop();
+          if (["xlsx", "txt", "csv"].includes(extension)) {
+            console.log("Selected file:", file);
+            try {
+              const formData = new FormData();
+              formData.append("file", file);
+              formData.append("country", selectedOptions.country);
+              formData.append("industry", selectedOptions.businessType); // Assuming 'businessType' as 'industry'
+              formData.append("isRetail", selectedOptions.sunday === "Tak" ? true : false); // Assuming sunday sales as retail indicator
+              const numericPeriod = convertToNumericPeriod(selectedOptions.predictionLength, selectedOptions.predictionFrequency);
+              formData.append("period", numericPeriod);
+            
+              // Convert frequency description to a single character (D, W, M)
+              const frequencyChar = selectedOptions.predictionFrequency === "Dzienna" ? "D" :
+                                  selectedOptions.predictionFrequency === "Tygodniowa" ? "W" : "M";
+              formData.append("frequency", frequencyChar);
+    
+              const response = await axios.post('http://192.168.195.63:5000/predict', formData, {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+              });
+    
+              console.log("Server response:", response.data);
+              navigate('/output-sales');
+            } catch (error) {
+              console.error("Error uploading file:", error);
             }
+          } else {
+            alert("Please select a file in .xlsx, .csv, or .txt format");
+          }
         }
-    };
+      };
+    
 
     return (
         <div>

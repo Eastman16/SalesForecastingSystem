@@ -43,12 +43,11 @@ function AttributesAllegro() {
               const formData = new FormData();
               formData.append("file", file);
               formData.append("country", selectedOptions.country);
-              formData.append("industry", selectedOptions.businessType); // Assuming 'businessType' as 'industry'
-              formData.append("isRetail", selectedOptions.sunday === "Tak" ? true : false); // Assuming sunday sales as retail indicator
+              formData.append("industry", selectedOptions.businessType);
+              formData.append("isRetail", selectedOptions.sunday === "Tak" ? true : false);
               const numericPeriod = convertToNumericPeriod(selectedOptions.predictionLength, selectedOptions.predictionFrequency);
               formData.append("period", numericPeriod);
             
-              // Convert frequency description to a single character (D, W, M)
               const frequencyChar = selectedOptions.predictionFrequency === "Dzienna" ? "D" :
                                   selectedOptions.predictionFrequency === "Tygodniowa" ? "W" : "M";
               formData.append("frequency", frequencyChar);
@@ -117,7 +116,7 @@ function AttributesAllegro() {
                             : "opacity-50 cursor-not-allowed"
                     }`}
                     style={{
-                        width: "200px",
+                        width: "220px",
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
@@ -130,7 +129,7 @@ function AttributesAllegro() {
                         src={Allegro}
                         alt="Logo"
                         className="justify-center"
-                        style={{ width: "70px", height: "auto", marginLeft: "10px" }}
+                        style={{ width: "70px", height: "auto", marginLeft: "5px" }}
                     />
                 </button>
             </div>

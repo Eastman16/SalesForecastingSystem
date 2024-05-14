@@ -3,7 +3,7 @@ import Attributes from "./Attributes";
 import { useNavigate } from "react-router-dom";
 
 const ImportFileSale = () => {
-  const fileInputRef = useRef(null); // Referencja do elementu input typu file
+  const fileInputRef = useRef(null);
   const [isAttributesReady, setIsAttributesReady] = useState(false);
 
   const navigate = useNavigate();
@@ -11,14 +11,13 @@ const ImportFileSale = () => {
 
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0]; // Pobieramy pierwszy wybrany plik
+    const file = e.target.files[0];
     if (file) {
       const fileName = file.name;
-      const extension = fileName.split(".").pop(); // Pobieramy rozszerzenie pliku
+      const extension = fileName.split(".").pop();
       if (extension === "xlsx" || extension === "txt" || extension === "csv") {
         console.log("Wybrany plik:", file);
-        // Tutaj możesz wykonać operacje na wybranym pliku
-        navigate("/sales-prediction"); // Nawigujemy do strony z prognozą sprzedaży
+        navigate("/output-sales");
       } else {
         alert("Wybierz plik w formacie .xlsx lub .txt");
       }
@@ -27,13 +26,10 @@ const ImportFileSale = () => {
 
   return (
     <>
-      <div className="pt-3.5 w-full text-center absolute z-50 text-big">
-        Prognoza sprzedaży
-      </div>
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center h-screen" style={{paddingTop: "50px"}}>
         <div
           className="bg-white rounded-lg relative flex flex-col items-center pt-3"
-          style={{ width: "450px", height: "680px", marginTop: "50px" }}
+          style={{ width: "450px", height: "680px", marginTop: "50px"  }}
         >
           <div
             className="w-96 h-[100px] text-center"
@@ -65,8 +61,8 @@ const ImportFileSale = () => {
             <div className="text-bold text-2xl">2021-10-03,2874.345</div>
           </div>
           <div>*pamiętaj o odzieleniu daty przecinkiem!</div>
-          <div className="" style={{ marginTop: "20px" }}>
-            <div className="top-[40x] h-[70px]">
+          <div className="" >
+            <div className="pt-5 top-[40x] h-[70px]" >
               <Attributes onReadyChange={setIsAttributesReady} />
             </div>
           </div>

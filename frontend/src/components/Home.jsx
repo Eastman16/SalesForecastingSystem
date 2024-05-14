@@ -1,108 +1,96 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import Ifirma from "../assets/ifirma.png";
+import Allegro from "../assets/allegro.png";
+import WooCommerce from "../assets/woocommerce.png";
 
 const Home = () => {
   let navigate = useNavigate();
-  const [isSalesClicked, setSalesClicked] = useState(false); // State for the sales forecast button
-  const [isDemandClicked, setDemandClicked] = useState(false); // State for the demand forecast button
+  const [isFileClicked, setFileClicked] = useState(false);
+  const [isAllegroClicked, setAllegroClicked] = useState(false);
+  const [isWooClicked, setWooClicked] = useState(false);
 
-  const handleButtonClick = (path, buttonType) => {
-    if (buttonType === "sales") {
-      setSalesClicked(true);
-    } else if (buttonType === "demand") {
-      setDemandClicked(true);
-    }
+  const handleButtonClick = (path, setClicked) => {
+    setClicked(true);
     setTimeout(() => {
-      if (buttonType === "sales") {
-        setSalesClicked(false);
-      } else if (buttonType === "demand") {
-        setDemandClicked(false);
-      }
+      setClicked(false);
       navigate(path);
-    }, 150); // Animation duration
+    }, 150);
   };
+
 
   return (
     <>
-      <div className="pt-3.5 w-full text-center absolute z-50 text-big">
-        System Prognozy Popytu
-      </div>
-
-      <div className="flex justify-center items-center h-screen">
-        <div
-          className="w-full text-center absolute z-50 text-big font-bold"
-          style={{ marginTop: "-500px" }}
-        >
-          Wybierz typ prognozowania:
-        </div>
-        <div className="grid grid-cols-2 gap-14">
+      <div className="flex justify-center h-screen" style={{paddingTop: "150px"}}>
           <div
             className="bg-white rounded-lg hover:scale-105 transition duration-150 ease-in-out transform"
-            style={{ width: "300px", height: "370px" }}
+            style={{ width: "600px", height: "300px" }}
           >
             <div className="flex flex-col h-full">
-              <div className="p-4">
-                <div className="text-[1.3rem]">Prognoza sprzedaży</div>
-                <div
-                  className="border-b border-1 border-black"
-                  style={{ width: "270px" }}
-                ></div>
-                <div className="pt-5 text-[2rem]" style={{ lineHeight: "1.3" }}>
-                  Poznaj <br />
-                  możliwości sprzedażowe <br />
-                  swojej firmy!
+                <div className="pt-5 pb-3 text-[2rem] text-center " style={{ lineHeight: "1.5" }}>
+                  Poznaj możliwości sprzedażowe <br/> swojej firmy!
                 </div>
-              </div>
-              <div className="pt-6 flex justify-center">
+                <div
+                      className="mx-auto border border-black"
+                      style={{ width: "550px" }}
+                    ></div>
+                <div className="pt-6 pb-6 text-[1.5rem] text-center " style={{ lineHeight: "1.5" }}>
+                  Wczytaj dane z:
+                </div>
+              <div className="flex flex-row gap-4 justify-center">
                 <button
-                  onClick={() => handleButtonClick("/login-sales", "sales")}
-                  className={`py-2 bg-ifirma-orange text-black font-bold rounded-full transition duration-150 ease-in-out transform ${
-                    isSalesClicked
-                      ? "scale-90 opacity-75"
-                      : "hover:bg-ifirma-orange-darker hover:scale-105 active:scale-95"
-                  }`}
-                  style={{ width: "200px" }}
-                >
-                  Wybieram
-                </button>
-              </div>
+              onClick={() =>
+                handleButtonClick("/import-file-sale", setFileClicked)
+              }
+              className={`bg-ifirma-orange rounded-lg flex justify-center items-center transition duration-150 ease-in-out transform ${
+                isFileClicked
+                  ? "scale-90 opacity-75"
+                  : "hover:bg-ifirma-orange-darker hover:scale-105 active:scale-95"
+              }`}
+              style={{ width: "150px", height: "50px" }}
+            >
+              <div className="text-[1.4rem]">Pliku</div>
+            </button>
+            <button
+              onClick={() =>
+                handleButtonClick("/import-allegro-sale", setAllegroClicked)
+              }
+              className={`bg-ifirma-orange rounded-lg flex justify-center items-center transition duration-150 ease-in-out transform ${
+                isAllegroClicked
+                  ? "scale-90 opacity-75"
+                  : "hover:bg-ifirma-orange-darker hover:scale-105 active:scale-95"
+              }`}
+              style={{ width: "150px", height: "50px" }}
+            >
+              <img
+                src={Allegro}
+                alt="Logo"
+                style={{ width: "100px", height: "auto" }}
+              />
+            </button>
+            <button
+              onClick={() =>
+                handleButtonClick("/import-woo-sale", setWooClicked)
+              }
+              className={`bg-ifirma-orange rounded-lg flex justify-center items-center transition duration-150 ease-in-out transform ${
+                isWooClicked
+                  ? "scale-90 opacity-75"
+                  : "hover:bg-ifirma-orange-darker hover:scale-105 active:scale-95"
+              }`}
+              style={{ width: "150px", height: "50px" }}
+            >
+              <img
+                src={WooCommerce}
+                alt="Logo"
+                className="pt-1"
+                style={{ width: "70px", height: "auto" }}
+              />
+            </button>
             </div>
-          </div>
-          <div
-            className="bg-white rounded-lg hover:scale-105 transition duration-150 ease-in-out transform"
-            style={{ width: "300px", height: "370px" }}
-          >
-            <div className="flex flex-col h-full">
-              <div className="p-4">
-                <div className="text-[1.3rem]">Prognoza zapotrzebowania</div>
-                <div
-                  className="border-b border-1 border-black"
-                  style={{ width: "270px" }}
-                ></div>
-                <div className="pt-5 text-[2rem]" style={{ lineHeight: "1.3" }}>
-                  Poznaj <br />
-                  możliwości sprzedażowe <br />
-                  swojej firmy!
-                </div>
-              </div>
-              <div className="pt-6 flex justify-center">
-                <button
-                  onClick={() => handleButtonClick("/login-demand", "demand")}
-                  className={`py-2 bg-ifirma-orange text-black font-bold rounded-full transition duration-150 ease-in-out transform ${
-                    isDemandClicked
-                      ? "scale-90 opacity-75"
-                      : "hover:bg-ifirma-orange-darker hover:scale-105 active:scale-95"
-                  }`}
-                  style={{ width: "200px" }}
-                >
-                  Wybieram
-                </button>
-              </div>
             </div>
           </div>
         </div>
-      </div>
     </>
   );
 };

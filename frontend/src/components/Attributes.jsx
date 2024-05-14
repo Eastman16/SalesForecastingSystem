@@ -28,9 +28,8 @@ function convertToNumericPeriod(periodType, frequencyType) {
       days = 0; 
   }
 
-  // Ajust days for weekly frequency
   if (frequencyType === "Tygodniowa") {
-    return days / 7; // Convert total days to weeks
+    return days / 7;
   } else if (frequencyType === "Miesięczna") {
     return days / 30;
   } else {
@@ -39,8 +38,6 @@ function convertToNumericPeriod(periodType, frequencyType) {
 }
 
 function Attributes() {
-  //const navigate = useNavigate();
-
   const navigate = useNavigate();
 
   const [selectedOptions, setSelectedOptions] = useState({
@@ -75,17 +72,16 @@ function Attributes() {
           const formData = new FormData();
           formData.append("file", file);
           formData.append("country", selectedOptions.country);
-          formData.append("industry", selectedOptions.businessType); // Assuming 'businessType' as 'industry'
-          formData.append("isRetail", selectedOptions.sunday === "Tak" ? true : false); // Assuming sunday sales as retail indicator
+          formData.append("industry", selectedOptions.businessType); 
+          formData.append("isRetail", selectedOptions.sunday === "Tak" ? true : false);
           const numericPeriod = convertToNumericPeriod(selectedOptions.predictionLength, selectedOptions.predictionFrequency);
           formData.append("period", numericPeriod);
         
-          // Convert frequency description to a single character (D, W, M)
           const frequencyChar = selectedOptions.predictionFrequency === "Dzienna" ? "D" :
                               selectedOptions.predictionFrequency === "Tygodniowa" ? "W" : "M";
           formData.append("frequency", frequencyChar);
 
-          const response = await axios.post('http://192.168.195.63:5000/predict', formData, {
+          const response = await axios.post('http://192.168.17.80:5000/predict', formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
@@ -108,7 +104,7 @@ function Attributes() {
 
   return (
     <div>
-      <div className="top-[40x] h-[60px]">
+      <div className="top-[40x] h-[60px]" >
         <SelectItem
           formName="Rodzaj biznesu"
           listData={businessType}

@@ -43,12 +43,11 @@ function AttributesWoo() {
               const formData = new FormData();
               formData.append("file", file);
               formData.append("country", selectedOptions.country);
-              formData.append("industry", selectedOptions.businessType); // Assuming 'businessType' as 'industry'
-              formData.append("isRetail", selectedOptions.sunday === "Tak" ? true : false); // Assuming sunday sales as retail indicator
+              formData.append("industry", selectedOptions.businessType);
+              formData.append("isRetail", selectedOptions.sunday === "Tak" ? true : false);
               const numericPeriod = convertToNumericPeriod(selectedOptions.predictionLength, selectedOptions.predictionFrequency);
               formData.append("period", numericPeriod);
             
-              // Convert frequency description to a single character (D, W, M)
               const frequencyChar = selectedOptions.predictionFrequency === "Dzienna" ? "D" :
                                   selectedOptions.predictionFrequency === "Tygodniowa" ? "W" : "M";
               formData.append("frequency", frequencyChar);
@@ -133,9 +132,9 @@ function AttributesWoo() {
                         alt="Logo"
                         className=""
                         style={{
-                            width: "60px",
+                            width: "45px",
                             height: "auto",
-                            marginLeft: "5px",
+                            marginLeft: "6px",
                         }}
                     />
                 </button>

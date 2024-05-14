@@ -14,8 +14,8 @@ const Chart = () => {
       const dateValues = Object.values(JSON.parse(storedData) || {});
 
       const formattedData = dateValues.map(item => ({
-        x: new Date(item.ds), // Przekształć datę na obiekt Date
-        y: parseFloat(item.yhat) // Przekształć wartość na float
+        x: new Date(item.ds),
+        y: parseFloat(item.yhat)
       }));
 
       const maxY = Math.max(...formattedData.map(point => point.y)) * 1.1;
@@ -27,9 +27,9 @@ const Chart = () => {
       console.error("Error processing data:", error);
       setError(error.toString());
     }
-  }, []); // Brak zewnętrznych zależności, używamy tylko danych z sessionStorage
+  }, []);
 
-  const thresholdValue = new Date("2022-08-01"); // Przykładowa data graniczna
+  const thresholdValue = new Date("2022-08-01");
 
   return (
     <div>

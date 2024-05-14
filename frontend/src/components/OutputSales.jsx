@@ -1,118 +1,45 @@
 import React, { useState } from "react";
-import Chart from "./Chart";
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { TextField } from "@mui/material";
-import dayjs from 'dayjs';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
-
-dayjs.extend(customParseFormat);
+import OutputChart from "./OutputChart";
+import OutputTable from "./OutputTable";
 
 const OutputSales = () => {
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedComponent, setSelectedComponent] = useState('chart');
 
-  // Sample data for the list of dates and values
+  const handleButtonClick = (component) => {
+    setSelectedComponent(component);
+  };
+
   const storedData = sessionStorage.getItem('myData');
   const dateValues = Object.values(JSON.parse(storedData) || {});
 
-  const filterDateValues = () => {
-    if (!selectedDate) {
-      return dateValues; // Return all values if no date is selected
-    }
-    const formattedDate = selectedDate.format("YYYY-MM-DD");
-    return dateValues.filter(item => item.ds === formattedDate);
-  };
-
-  const downloadCSV = (data) => {
-    const csvRows = []; // Header
-    // Directly use the dates if they're in the correct format
-    data.forEach(item => {
-      csvRows.push(`${item.ds},${item.yhat}`);
-    });
-
-    const csvString = csvRows.join('\n');
-    const blob = new Blob([csvString], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'dateValues.csv';
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const handleDownloadChartImage = () => {
-    const chartCanvas = document.querySelector(".canvasjs-chart-canvas");
-    const chartImageURI = chartCanvas.toDataURL("image/png");
-
-    const a = document.createElement("a");
-    a.href = chartImageURI;
-    a.download = "chart.png";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
   return (
-    <div className="pt-3.5 w-full text-center absolute z-50 text-big">
-      Prognoza sprzedaży
-      <div className="flex flex-row gap-20 px-12 pt-10 justify-left">
-        <div className="bg-white rounded-lg" style={{ width: "300px", height: "600px" }}>
-          <div className="flex flex-col h-full">
-            <div className="p-4">
-              <div className="text-big font-bold">Tabela wynikowa</div>
-            </div>
-            <div className="bg-ifirma-gray rounded-lg pt-6 ml-5" style={{ width: "260px", height: "515px" }}>
-              <div className="bg-ifirma-orange mx-2 rounded">
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Wyszukaj konkretną datę"
-                    value={selectedDate}
-                    onChange={setSelectedDate}
-                    inputFormat="DD/YYYY/MM"
-                    components={{
-                      TextField: (props) => <TextField {...props} />
-                    }}
-                  />
-                </LocalizationProvider>
-              </div>
-              <div className="overflow-y-auto" style={{ height: "380px", marginTop: "20px", paddingRight: "10px" }}>
-                {filterDateValues().map((item, index) => (
-                  <div key={index} className="p-2">
-                    {`${item.ds}, ${item.yhat}`}
-                    <div
-                      className="border-b border-1 border-black"
-                      style={{ width: "240px" }}
-                    ></div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 flex justify-center">
-                <button
-                  onClick={() => downloadCSV(filterDateValues())}
-                  className="py-2 bg-ifirma-orange text-black font-bold rounded-full transition duration-150 ease-in-out transform hover:bg-ifirma-orange-darker hover:scale-105 active:scale-95"
-                  style={{ width: "220px", marginTop: "55px" }}
-                >
-                  Pobierz dane
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div style={{ flex: 1, minHeight: '600px', paddingTop: "90px" }}>
-          <Chart csvFilePath="/data.csv" />
-          <div className="mt-4 flex justify-center">
+    <>
+      <div className="flex flex-col items-center" style={{paddingTop: "80px"}}>
+        <div
+          className="flex flex-row gap-4 mb-4 bg-white rounded-lg transition duration-150 ease-in-out transform justify-center items-center"
+          style={{ width: "200px", height: "60px" }}
+        >
             <button
-              onClick={handleDownloadChartImage}
-              className="py-2 bg-ifirma-orange text-black font-bold rounded-full transition duration-150 ease-in-out transform hover:bg-ifirma-orange-darker hover:scale-105 active:scale-95"
-              style={{ width: "240px" }}
+              onClick={() => handleButtonClick('chart')}
+              className={`py-2 px-4 font-bold rounded ${
+                selectedComponent === 'chart' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'
+              }`}
             >
-              Pobierz wykres
+              Chart
+            </button>
+            <button
+              onClick={() => handleButtonClick('table')}
+              className={`py-2 px-4 font-bold rounded ${
+                selectedComponent === 'table' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'
+              }`}
+            >
+              Table
             </button>
           </div>
-        </div>
+        {selectedComponent === 'chart' && <OutputChart storedData={storedData} dateValues={dateValues} />}
+          {selectedComponent === 'table' && <OutputTable storedData={storedData} dateValues={dateValues} />}
       </div>
-    </div>
+    </>
   );
 };
 

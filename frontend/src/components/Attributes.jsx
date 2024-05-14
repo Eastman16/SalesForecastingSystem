@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import axios from 'axios';
 import SelectItem from "./SelectItem";
 import businessType from "../lists/businessType.json";
 import country from "../lists/countryList.json";
@@ -7,6 +8,8 @@ import predictionFrequency from "../lists/predictionFrequency.json";
 import sunday from "../lists/sunday.json";
 
 function Attributes() {
+  //const navigate = useNavigate();
+
   const [selectedOptions, setSelectedOptions] = useState({
     businessType: "",
     country: "",
@@ -28,19 +31,39 @@ function Attributes() {
 
   const fileInputRef = useRef(null);
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0]; // Pobieramy pierwszy wybrany plik
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
     if (file) {
       const fileName = file.name;
-      const extension = fileName.split(".").pop(); // Pobieramy rozszerzenie pliku
-      if (extension === "xlsx" || extension === "txt" || extension === "csv") {
-        console.log("Wybrany plik:", file);
-        // Tutaj możesz wykonać operacje na wybranym pliku
+      const extension = fileName.split(".").pop();
+      if (["xlsx", "txt", "csv"].includes(extension)) {
+        console.log("Selected file:", file);
+        try {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("model", selectedOptions.businessType);
+          formData.append("country", selectedOptions.country);
+          formData.append("industry", selectedOptions.businessType); // Assuming 'businessType' as 'industry'
+          formData.append("isRetail", selectedOptions.sunday === "Tak" ? 1 : 0); // Assuming sunday sales as retail indicator
+          formData.append("period", selectedOptions.predictionLength);
+          formData.append("frequency", selectedOptions.predictionFrequency);
+
+          const response = await axios.post('http://192.168.195.63:5000/predict', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+
+          console.log("Server response:", response.data);
+        } catch (error) {
+          console.error("Error uploading file:", error);
+        }
       } else {
-        alert("Wybierz plik w formacie .xlsx lub .txt");
+        alert("Please select a file in .xlsx, .csv, or .txt format");
       }
     }
   };
+
 
   return (
     <div>

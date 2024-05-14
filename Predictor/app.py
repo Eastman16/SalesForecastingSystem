@@ -25,7 +25,7 @@ def asdf():
 
 @app.route("/predict", methods=['POST'])
 def connecttomodel():
-
+     print([i for i in request.args.keys()])
      if 'file' not in request.files:
           return 'No file part in the request', 400
      file = request.files['file']
@@ -35,11 +35,11 @@ def connecttomodel():
 
      model = request.args.get('model')
      try:
-          country = request.args.get('country')
-          industry = request.args.get('industry')
-          isRetail = False if request.args.get('isRetail') == '0' else True
-          period = 30 if request.args.get('period') == None else int(request.args.get('period'))
-          freq = 'D' if request.args.get('frequency') == None else request.args.get('frequency')
+          country = request.form.get('country')
+          industry = request.form.get('industry')
+          isRetail = False if request.form.get('isRetail') == '0' else True
+          period = 30 if request.form.get('period') == None else int(request.form.get('period'))
+          freq = 'D' if request.form.get('frequency') == None else request.form.get('frequency')
           file.save("woof.csv") #TODO: Dont do it like that
 
           df = pd.read_csv("woof.csv", header=None, names=['ds', 'y'])

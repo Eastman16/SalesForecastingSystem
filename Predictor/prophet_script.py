@@ -381,6 +381,7 @@ def main(argv):
     print(df_p)
 
 def useProphet(country, industry, isRetail, periods, freq, df):
+    print(country, industry, isRetail, periods, freq)
     df['ds'] = pd.to_datetime(df['ds'])
     events = includeEvents(df['ds'].iloc[0], df['ds'].iloc[-1], industry, isRetail, country)
     m = Prophet(holidays=events)  # changepoint do testów

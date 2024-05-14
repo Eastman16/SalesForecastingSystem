@@ -6,9 +6,13 @@ import pandas as pd
 from flask import Flask, request
 import prophet_script
 
+
+from flask_cors import CORS
+
 ALLOWED_EXTENSIONS = {'txt', 'xlsx', 'csv'}
 
 app = Flask(__name__)
+CORS(app)
 # app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 def allowed_file(filename):
@@ -36,16 +40,14 @@ def connecttomodel():
           isRetail = False if request.args.get('isRetail') == '0' else True
           period = 30 if request.args.get('period') == None else int(request.args.get('period'))
           freq = 'D' if request.args.get('frequency') == None else request.args.get('frequency')
+          file.save("woof.csv") #TODO: Dont do it like that
 
-          df = pd.read_csv(StringIO(file), sep=";")
+          df = pd.read_csv("woof.csv", header=None, names=['ds', 'y'])
+          os.remove("woof.csv")
           data = prophet_script.useProphet(country, industry, isRetail, period, freq, df)
           # rm file?
 
-          if data == 1:
-               return "Processing failed", 400
-          response = flask.jsonify(data)
-          response.headers.add('Access-Control-Allow-Origin', '*')
-          return response
+          return data
 
      except:
           return ['Incorrect parameters', 400]

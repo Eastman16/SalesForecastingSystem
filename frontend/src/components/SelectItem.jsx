@@ -18,6 +18,7 @@ function SelectItem({ formName, listData, onChange }) {
           id={`${formName}`}
           onChange={handleChange}
           label={formName}
+          defaultValue={listData.length > 0 ? listData[0].Type : ""}
         >
           {listData.map((item, i) => (
             <MenuItem key={i} value={item.Type}>

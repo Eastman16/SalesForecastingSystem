@@ -2,10 +2,9 @@ import React from "react";
 import AttributesWoo from "./AttributesWoo";
 
 const ImportWooSales = () => {
-  
   return (
     <>
-      <div className="flex justify-center h-screen" style={{paddingTop: "50px"}}>
+      <div className="flex justify-center h-screen">
         <div
           className="bg-white rounded-lg relative flex flex-col items-center pt-3"
           style={{ width: "450px", height: "470px", marginTop: "50px" }}

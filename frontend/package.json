@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@canvasjs/charts": "^3.8.6",
     "@canvasjs/react-charts": "^1.0.2",
     "@craco/craco": "^7.1.0",
     "@date-io/dayjs": "^3.0.0",

@@ -16,10 +16,9 @@ const Navbar = () => {
 
   return (
     <nav
-      className="bg-white fixed top-0 left-0 right-0 flex items-center justify-center"
+      className="bg-white flex items-center justify-center z-50"
       style={{ height: "60px" }}
     >
-      
       <img
         src={Ifirma}
         alt="Logo"
@@ -32,7 +31,11 @@ const Navbar = () => {
         className={`bg-ifirma-orange rounded-lg cursor-pointer transition duration-150 ease-in-out transform text-big ${
           isButtonClicked ? "scale-90" : "hover:scale-105"
         }`}
-        style={{ width: "500px", height: "40px", marginLeft: "10px", cursor: "pointer", border: "none", outline: "none" }}
+        style={{
+          width: "500px",
+          height: "40px",
+          cursor: "pointer",
+        }}
       >
         System prognozy sprzedaży
       </button>

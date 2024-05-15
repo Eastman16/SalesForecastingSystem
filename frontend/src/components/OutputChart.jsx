@@ -1,40 +1,51 @@
 import React, { useState } from "react";
 import Chart from "./Chart";
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { TextField } from "@mui/material";
-import dayjs from 'dayjs';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { Button } from "@mui/material";
 
 const OutputChart = ({ storedData, dateValues }) => {
+  const handleDownloadChartImage = () => {
+    const chartCanvas = document.querySelector(".canvasjs-chart-canvas");
+    const chartImageURI = chartCanvas.toDataURL("image/png");
 
-    const handleDownloadChartImage = () => {
-        const chartCanvas = document.querySelector(".canvasjs-chart-canvas");
-        const chartImageURI = chartCanvas.toDataURL("image/png");
-    
-        const a = document.createElement("a");
-        a.href = chartImageURI;
-        a.download = "chart.png";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      };
+    const a = document.createElement("a");
+    a.href = chartImageURI;
+    a.download = "chart.png";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
 
-    return (
-        <div style={{ flex: 1, minHeight: '600px', paddingTop: "50px" }}>
-          <Chart csvFilePath="/data.csv" />
-          <div className="mt-4 flex justify-center">
-            <button
-              onClick={handleDownloadChartImage}
-              className="py-2 bg-ifirma-orange text-black font-bold rounded-full transition duration-150 ease-in-out transform hover:bg-ifirma-orange-darker hover:scale-105 active:scale-95"
-              style={{ width: "600px" }}
-            >
-              Pobierz wykres
-            </button>
-          </div>
+  const [isDownloadClicked, setDownloadClicked] = useState(false);
+
+  return (
+    <>
+      <div
+        className="bg-white flex flex-row justify-center rounded-lg mt-2"
+        style={{ width: "1050px" }}
+      >
+        <div className="mt-2" style={{ width: "1000px", height: "410px" }}>
+          <Chart csvFilePath="/data.csv" />{" "}
         </div>
-    )
-}
+      </div>
+      <button
+        onClick={() => {
+          setDownloadClicked(true);
+          handleDownloadChartImage();
+          setTimeout(() => {
+            setDownloadClicked(false);
+          }, 150);
+        }}
+        className={`py-2 bg-ifirma-orange text-black font-bold rounded-full transition duration-150 ease-in-out transform ${
+          isDownloadClicked
+            ? "scale-90 opacity-75"
+            : "hover:bg-ifirma-orange-darker hover:scale-105 active:scale-95"
+        }`}
+        style={{ width: "200px", marginTop: "15px" }}
+      >
+        Pobierz wykres
+      </button>
+    </>
+  );
+};
 
-export default OutputChart
+export default OutputChart;

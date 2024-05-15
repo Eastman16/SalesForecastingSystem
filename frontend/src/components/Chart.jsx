@@ -8,17 +8,29 @@ const Chart = () => {
   const [error, setError] = useState(null);
   const [maxYValue, setMaxYValue] = useState(null);
 
+  const lastLine = sessionStorage.getItem("lastValue");
+  const lastLineValues = lastLine.split(",");
+
+  const lastLineData = {
+    ds: new Date(lastLineValues[0]),
+  };
+
+  const beforeLastDate = new Date(lastLineData.ds);
+  beforeLastDate.setDate(beforeLastDate.getDate() - 1);
+
   useEffect(() => {
     try {
-      const storedData = sessionStorage.getItem('myData');
+      const storedData = sessionStorage.getItem("myData");
       const dateValues = Object.values(JSON.parse(storedData) || {});
 
-      const formattedData = dateValues.map(item => ({
-        x: new Date(item.ds),
-        y: parseFloat(item.yhat)
-      }));
+      const formattedData = dateValues
+        .map((item) => ({
+          x: new Date(item.ds),
+          y: parseFloat(item.yhat),
+        }))
+        .filter((point) => !isNaN(point.x.getTime()));
 
-      const maxY = Math.max(...formattedData.map(point => point.y)) * 1.1;
+      const maxY = Math.max(...formattedData.map((point) => point.y)) * 1.1;
       const maxYValue = Math.ceil(maxY / 100) * 100;
       setMaxYValue(maxYValue);
 
@@ -29,8 +41,6 @@ const Chart = () => {
     }
   }, []);
 
-  const thresholdValue = new Date("2022-08-01");
-
   return (
     <div>
       {error ? (
@@ -38,27 +48,33 @@ const Chart = () => {
           Error loading chart data: {error}
         </div>
       ) : dataPoints.length > 0 ? (
-        <CanvasJSChart options={{
-          theme: "light2",
-          animationEnabled: true,
-          zoomEnabled: true,
-          title: { text: "Przewidywalna sprzedaż", fontSize: 25 },
-          axisY: { includeZero: true, maximum: maxYValue },
-          data: [
-            {
-              type: "area",
-              xValueType: "dateTime",
-              color: "#4682B4",
-              dataPoints: dataPoints.filter(point => point.x <= thresholdValue)
-            },
-            {
-              type: "area",
-              xValueType: "dateTime",
-              color: "#ADD8E6",
-              dataPoints: dataPoints.filter(point => point.x >= thresholdValue)
-            }
-          ]
-        }} />
+        <CanvasJSChart
+          options={{
+            theme: "light2",
+            animationEnabled: true,
+            zoomEnabled: true,
+            title: { text: "Przewidywalna sprzedaż", fontSize: 25 },
+            axisY: { includeZero: true, maximum: maxYValue },
+            data: [
+              {
+                type: "area",
+                xValueType: "dateTime",
+                color: "#4682B4",
+                dataPoints: dataPoints.filter(
+                  (point) => point.x <= lastLineData.ds
+                ),
+              },
+              {
+                type: "area",
+                xValueType: "dateTime",
+                color: "#ADD8E6",
+                dataPoints: dataPoints.filter(
+                  (point) => point.x >= beforeLastDate
+                ),
+              },
+            ],
+          }}
+        />
       ) : (
         <div style={{ marginTop: "20px" }}>Loading data...</div>
       )}

@@ -6,7 +6,7 @@ const ImportAllegroSales = () => {
 
   return (
     <>
-      <div className="flex justify-center h-screen" style={{paddingTop: "50px"}}>
+      <div className="flex justify-center h-screen">
         <div
           className="bg-white rounded-lg relative flex flex-col items-center pt-3"
           style={{ width: "450px", height: "470px", marginTop: "50px" }}
@@ -16,7 +16,7 @@ const ImportAllegroSales = () => {
           </div>
           <div className="" style={{ marginTop: "20px" }}>
             <div className="top-[40x] h-[70px]">
-            <Attributes onReadyChange={setIsAttributesReady} />
+              <Attributes onReadyChange={setIsAttributesReady} />
             </div>
           </div>
         </div>

@@ -8,8 +8,6 @@ const ImportFileSale = () => {
 
   const navigate = useNavigate();
 
-
-
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -26,10 +24,10 @@ const ImportFileSale = () => {
 
   return (
     <>
-      <div className="flex justify-center h-screen" style={{paddingTop: "50px"}}>
+      <div className="flex justify-center h-screen">
         <div
           className="bg-white rounded-lg relative flex flex-col items-center pt-3"
-          style={{ width: "450px", height: "680px", marginTop: "50px"  }}
+          style={{ width: "450px", height: "700px", marginTop: "50px" }}
         >
           <div
             className="w-96 h-[100px] text-center"
@@ -61,8 +59,8 @@ const ImportFileSale = () => {
             <div className="text-bold text-2xl">2021-10-03,2874.345</div>
           </div>
           <div>*pamiętaj o odzieleniu daty przecinkiem!</div>
-          <div className="" >
-            <div className="pt-5 top-[40x] h-[70px]" >
+          <div className="">
+            <div className="pt-5 top-[40x] h-[70px]">
               <Attributes onReadyChange={setIsAttributesReady} />
             </div>
           </div>

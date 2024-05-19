@@ -15,8 +15,12 @@ const Chart = () => {
     ds: new Date(lastLineValues[0]),
   };
 
+  // Pobierz wartość zmiennej days z sessionStorage i przekształć ją na liczbę
+  const days = parseInt(sessionStorage.getItem("days"), 10);
+
+  // Oblicz beforeLastDate na podstawie wartości days
   const beforeLastDate = new Date(lastLineData.ds);
-  beforeLastDate.setDate(beforeLastDate.getDate() - 1);
+  beforeLastDate.setDate(beforeLastDate.getDate() - days);
 
   useEffect(() => {
     try {

@@ -10,30 +10,12 @@ import Slider from "@mui/material/Slider";
 import Typography from "@mui/material/Typography";
 
 function convertToNumericPeriod(periodType, frequencyType) {
-  let days = 0;
-  switch (periodType) {
-    case "Tydzień":
-      days = 7;
-      break;
-    case "Miesiąc":
-      days = 30;
-      break;
-    case "Kwartał":
-      days = 90;
-      break;
-    case "Rok":
-      days = 365;
-      break;
-    default:
-      days = 0;
-  }
-
   if (frequencyType === "Tygodniowa") {
-    return days / 7;
+    return periodType / 7;
   } else if (frequencyType === "Miesięczna") {
-    return days / 30;
+    return periodType / 30;
   } else {
-    return days;
+    return periodType;
   }
 }
 
@@ -91,7 +73,9 @@ function Attributes() {
             selectedOptions.predictionLength,
             selectedOptions.predictionFrequency
           );
+
           formData.append("period", numericPeriod);
+          sessionStorage.setItem("days", numericPeriod);
 
           const frequencyChar =
             selectedOptions.predictionFrequency === "Dzienna"

@@ -385,16 +385,22 @@ def useProphet(country, industry, isRetail, periods, freq, df):
     df['ds'] = pd.to_datetime(df['ds'])
     events = includeEvents(df['ds'].iloc[0], df['ds'].iloc[-1], industry, isRetail, country)
     m = Prophet(holidays=events)  # changepoint do testów
-
     if (country != None):
         m.add_country_holidays(country_name=country)
     m.fit(df)
     future = m.make_future_dataframe(periods=periods, freq=freq)  # 'W-SUN')
 
     forecast = m.predict(future)
-    forecast[['yhat', 'yhat_lower']] = np.clip(forecast[['yhat', 'yhat_lower']], 0.0, 99999999)
+    for i in range(len(df['y'])):
+        if pd.notna(df['y'].iloc[i]):
+            forecast['yhat'].iloc[i] = df['y'].iloc[i]
+    #forecast[['yhat', 'yhat_lower']] = np.clip(forecast[['yhat', 'yhat_lower']], 0.0, 99999999)
+
+
 
     forecast['ds'] = forecast['ds'].dt.strftime("%Y-%m-%d")
+
+
     return forecast[['ds', 'yhat']].transpose().to_json()
 
 if __name__ == '__main__':

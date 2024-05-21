@@ -25,7 +25,6 @@ def asdf():
 
 @app.route("/predict", methods=['POST'])
 def connecttomodel():
-     print([i for i in request.args.keys()])
      if 'file' not in request.files:
           return 'No file part in the request', 400
      file = request.files['file']
@@ -43,6 +42,7 @@ def connecttomodel():
           file.save("woof.csv") #TODO: Dont do it like that
 
           df = pd.read_csv("woof.csv", header=None, names=['ds', 'y'])
+          df = df.tail(-1)
           os.remove("woof.csv")
           data = prophet_script.useProphet(country, industry, isRetail, period, freq, df)
           # rm file?

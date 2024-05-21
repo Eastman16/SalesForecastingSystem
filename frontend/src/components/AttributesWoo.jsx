@@ -13,6 +13,7 @@ import Typography from "@mui/material/Typography";
 function AttributesWoo() {
   const navigate = useNavigate();
 
+  // Default options for dropdowns
   const defaultOptions = {
     businessType: businessType.length > 0 ? businessType[0].Type : "",
     country: country.length > 0 ? country[0].Type : "",
@@ -43,6 +44,7 @@ function AttributesWoo() {
 
   const fileInputRef = useRef(null);
 
+  // Function to handle file change
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -51,6 +53,7 @@ function AttributesWoo() {
       if (["xlsx", "txt", "csv"].includes(extension)) {
         console.log("Selected file:", file);
         try {
+          // Creating form data
           const formData = new FormData();
           formData.append("file", file);
           formData.append("country", selectedOptions.country);
@@ -73,6 +76,7 @@ function AttributesWoo() {
               : "M";
           formData.append("frequency", frequencyChar);
 
+          // Sending POST request to server
           const response = await axios.post(
             "http://192.168.195.63:5000/predict",
             formData,
@@ -97,6 +101,7 @@ function AttributesWoo() {
   const [isFileClickedWoo, setFileClickedWoo] = useState(false);
 
   return (
+    // Displaying the entire list of attributes needed for the operation of the AI model, individual attributes are displayed in SelectItem
     <div>
       <div className="top-[40x] h-[60px]">
         <SelectItem
@@ -106,7 +111,7 @@ function AttributesWoo() {
           defaultValue={selectedOptions.businessType}
         />
       </div>
-      <div className="" style={{ marginTop: "10px" }}>
+      <div className="mt-[10px]">
         <SelectItem
           formName="Kraj"
           listData={country}
@@ -115,7 +120,7 @@ function AttributesWoo() {
         />
       </div>
 
-      <div className="" style={{ marginTop: "20px" }}>
+      <div className="mt-[20px]">
         <SelectItem
           formName="Cykliczność predykcji"
           listData={predictionFrequency}
@@ -136,26 +141,20 @@ function AttributesWoo() {
         ></Slider>
       </div>
 
-      <div className="flex justify-center" style={{ marginTop: "30px" }}>
+      <div className="flex justify-center mt-[30px]">
         <input
           type="file"
           accept=".xlsx, .txt"
           ref={fileInputRef}
-          style={{ display: "none" }}
+          className="hidden"
           onChange={handleFileChange}
         />
         <button
-          className={`py-2 bg-ifirma-orange text-black font-bold rounded-full transition duration-150 ease-in-out transform ${
+          className={`py-2 bg-ifirma-orange text-black font-bold rounded-full transition duration-150 ease-in-out transform w-[200px] flex justify-center items-center ${
             isFileClickedWoo
               ? "scale-90 opacity-75"
               : "hover:bg-ifirma-orange-darker hover:scale-105 active:scale-95"
           }`}
-          style={{
-            width: "200px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
           onClick={() => {
             setFileClickedWoo(true);
             fileInputRef.current.click();
@@ -164,16 +163,11 @@ function AttributesWoo() {
             }, 150);
           }}
         >
-          <span style={{ marginLeft: "0px" }}>Wczytaj plik z </span>
+          <div>Wczytaj plik z </div>
           <img
             src={WooCommerce}
             alt="Logo"
-            className=""
-            style={{
-              width: "45px",
-              height: "auto",
-              marginLeft: "6px",
-            }}
+            className="w-[45px] h-auto ml-[6px]"
           />
         </button>
       </div>

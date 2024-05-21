@@ -8,6 +8,7 @@ const Chart = () => {
   const [error, setError] = useState(null);
   const [maxYValue, setMaxYValue] = useState(null);
 
+  // Retrieving last line and days from sessionStorage
   const lastLine = sessionStorage.getItem("lastValue");
   const lastLineValues = lastLine.split(",");
 
@@ -15,24 +16,23 @@ const Chart = () => {
     ds: new Date(lastLineValues[0]),
   };
 
-  // Pobierz wartość zmiennej days z sessionStorage i przekształć ją na liczbę
   const days = parseInt(sessionStorage.getItem("days"), 10);
-
-  // Oblicz beforeLastDate na podstawie wartości days
   const beforeLastDate = new Date(lastLineData.ds);
   beforeLastDate.setDate(beforeLastDate.getDate() - days);
 
+  // Effect hook to fetch and process data
   useEffect(() => {
     try {
-      const storedData = sessionStorage.getItem("myData");
-      const dateValues = Object.values(JSON.parse(storedData) || {});
+      const storedData = sessionStorage.getItem("myData"); // Retrieving stored data from sessionStorage
+      const dateValues = Object.values(JSON.parse(storedData) || {}); // Parsing stored data and extracting values
 
+      // Formatting data points
       const formattedData = dateValues
         .map((item) => ({
           x: new Date(item.ds),
           y: parseFloat(item.yhat),
         }))
-        .filter((point) => !isNaN(point.x.getTime()));
+        .filter((point) => !isNaN(point.x.getTime())); // Filtering out invalid points
 
       const maxY = Math.max(...formattedData.map((point) => point.y)) * 1.1;
       const maxYValue = Math.ceil(maxY / 100) * 100;
@@ -48,10 +48,10 @@ const Chart = () => {
   return (
     <div>
       {error ? (
-        <div style={{ color: "red", marginTop: "20px" }}>
+        <div className="text-red-500 mt-5">
           Error loading chart data: {error}
         </div>
-      ) : dataPoints.length > 0 ? (
+      ) : dataPoints.length > 0 ? ( // If data points exist, render chart
         <CanvasJSChart
           options={{
             theme: "light2",
@@ -65,7 +65,9 @@ const Chart = () => {
                 xValueType: "dateTime",
                 color: "#4682B4",
                 dataPoints: dataPoints.filter(
-                  (point) => point.x <= lastLineData.ds
+                  (point) =>
+                    point.x <=
+                    lastLineData.ds.setDate(lastLineData.ds.getDate() + 1) // Filtering data points for the last day
                 ),
               },
               {
@@ -73,14 +75,14 @@ const Chart = () => {
                 xValueType: "dateTime",
                 color: "#ADD8E6",
                 dataPoints: dataPoints.filter(
-                  (point) => point.x >= beforeLastDate
+                  (point) => point.x >= beforeLastDate // Filtering data points for the day before the last day
                 ),
               },
             ],
           }}
         />
       ) : (
-        <div style={{ marginTop: "20px" }}>Loading data...</div>
+        <div className="mt-5">Loading data...</div>
       )}
     </div>
   );

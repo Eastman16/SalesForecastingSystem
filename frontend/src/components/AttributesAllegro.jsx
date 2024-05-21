@@ -13,6 +13,7 @@ import Typography from "@mui/material/Typography";
 function AttributesAllegro() {
   const navigate = useNavigate();
 
+  // Default options for dropdowns
   const defaultOptions = {
     businessType: businessType.length > 0 ? businessType[0].Type : "",
     country: country.length > 0 ? country[0].Type : "",
@@ -43,6 +44,7 @@ function AttributesAllegro() {
 
   const fileInputRef = useRef(null);
 
+  // Function to handle file change
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -73,6 +75,7 @@ function AttributesAllegro() {
               : "M";
           formData.append("frequency", frequencyChar);
 
+          // Sending POST request to server
           const response = await axios.post(
             "http://192.168.195.63:5000/predict",
             formData,
@@ -97,6 +100,7 @@ function AttributesAllegro() {
   const [isFileClickedAllegro, setFileClickedAllegro] = useState(false);
 
   return (
+    // Displaying the entire list of attributes needed for the operation of the AI model, individual attributes are displayed in SelectItem
     <div>
       <div className="top-[40x] h-[60px]">
         <SelectItem
@@ -106,7 +110,7 @@ function AttributesAllegro() {
           defaultValue={selectedOptions.businessType}
         />
       </div>
-      <div className="" style={{ marginTop: "10px" }}>
+      <div className="mt-[10px]">
         <SelectItem
           formName="Kraj"
           listData={country}
@@ -115,7 +119,7 @@ function AttributesAllegro() {
         />
       </div>
 
-      <div className="" style={{ marginTop: "20px" }}>
+      <div className="mt-[20px]">
         <SelectItem
           formName="Cykliczność predykcji"
           listData={predictionFrequency}
@@ -135,26 +139,20 @@ function AttributesAllegro() {
           valueLabelDisplay="auto"
         ></Slider>
       </div>
-      <div className="flex justify-center" style={{ marginTop: "30px" }}>
+      <div className="flex justify-center mt-[30px]">
         <input
           type="file"
           accept=".xlsx, .txt"
           ref={fileInputRef}
-          style={{ display: "none" }}
+          className="hidden"
           onChange={handleFileChange}
         />
         <button
-          className={`py-2 bg-ifirma-orange text-black font-bold rounded-full transition duration-150 ease-in-out transform ${
+          className={`py-2 bg-ifirma-orange text-black font-bold rounded-full transition duration-150 ease-in-out transform w-[220px] flex justify-center items-center ${
             isFileClickedAllegro
               ? "scale-90 opacity-75"
               : "hover:bg-ifirma-orange-darker hover:scale-105 active:scale-95"
           }`}
-          style={{
-            width: "220px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
           onClick={() => {
             setFileClickedAllegro(true);
             fileInputRef.current.click();
@@ -163,13 +161,8 @@ function AttributesAllegro() {
             }, 150);
           }}
         >
-          <span>Wczytaj plik z</span>
-          <img
-            src={Allegro}
-            alt="Logo"
-            className="justify-center"
-            style={{ width: "70px", height: "auto", marginLeft: "5px" }}
-          />
+          <div>Wczytaj plik z</div>
+          <img src={Allegro} alt="Logo" className="ml-1 w-[70px] h-auto" />
         </button>
       </div>
     </div>

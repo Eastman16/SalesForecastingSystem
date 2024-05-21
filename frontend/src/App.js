@@ -9,21 +9,19 @@ import OutputSales from "./components/OutputSales";
 import OutputChart from "./components/OutputChart";
 import OutputTable from "./components/OutputTable";
 
-
-
 function App() {
   return (
     <Router>
-        <Navbar />
-        <Routes>
-          <Route path="/import-allegro-sale" element={<ImportAllegroS />} />
-          <Route path="/" element={<Home />} />
-          <Route path="/import-file-sale" element={<ImportFileS />} />
-          <Route path="/import-woo-sale" element={<ImportWooS />} />
-          <Route path="/output-sales" element={<OutputSales />} />
-          <Route path="/chart" element={<OutputChart />} />
-          <Route path="/table" element={<OutputTable />} />
-        </Routes>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/import-file-sale" element={<ImportFileS />} />
+        <Route path="/import-allegro-sale" element={<ImportAllegroS />} />
+        <Route path="/import-woo-sale" element={<ImportWooS />} />
+        <Route path="/chart" element={<OutputChart />} />
+        <Route path="/table" element={<OutputTable />} />
+        <Route path="/output-sales" element={<OutputSales />} />
+      </Routes>
     </Router>
   );
 }

@@ -6,6 +6,7 @@ const Navbar = () => {
   let navigate = useNavigate();
   const [isButtonClicked, setButtonClicked] = useState(false);
 
+  // Function to handle button click to make animation
   const handleButtonClick = () => {
     setButtonClicked(true);
     setTimeout(() => {
@@ -15,27 +16,19 @@ const Navbar = () => {
   };
 
   return (
-    <nav
-      className="bg-white flex items-center justify-center z-50"
-      style={{ height: "60px" }}
-    >
+    <nav className="bg-white flex items-center justify-center z-50 h-[60px] px-5 md:px-10">
+      {/* Ifirma logo */}
       <img
         src={Ifirma}
         alt="Logo"
-        className={`absolute top-0.5 left-5`}
-        style={{ width: "100px", height: "auto" }}
+        className="absolute left-5 w-[100px] hidden md:block"
       />
-
+      {/* Button with dynamic classes for animation */}
       <button
         onClick={handleButtonClick}
-        className={`bg-ifirma-orange rounded-lg cursor-pointer transition duration-150 ease-in-out transform text-big ${
+        className={`bg-ifirma-orange rounded-lg cursor-pointer transition duration-150 ease-in-out transform text-big w-[500px] h-[40px] ${
           isButtonClicked ? "scale-90" : "hover:scale-105"
         }`}
-        style={{
-          width: "500px",
-          height: "40px",
-          cursor: "pointer",
-        }}
       >
         System prognozy sprzedaży
       </button>

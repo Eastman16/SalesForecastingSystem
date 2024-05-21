@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import Slider from "@mui/material/Slider";
 import Typography from "@mui/material/Typography";
 
+// Function to convert prediction length based on prediction frequency
 function convertToNumericPeriod(periodType, frequencyType) {
   if (frequencyType === "Tygodniowa") {
     return periodType / 7;
@@ -22,6 +23,7 @@ function convertToNumericPeriod(periodType, frequencyType) {
 function Attributes() {
   const navigate = useNavigate();
 
+  // Default options for dropdowns
   const defaultOptions = {
     businessType: businessType.length > 0 ? businessType[0].Type : "",
     country: country.length > 0 ? country[0].Type : "",
@@ -53,6 +55,7 @@ function Attributes() {
 
   const fileInputRef = useRef(null);
 
+  // Function to handle file change
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -61,6 +64,7 @@ function Attributes() {
       if (["xlsx", "txt", "csv"].includes(extension)) {
         console.log("Selected file:", file);
         try {
+          // Creating form data
           const formData = new FormData();
           formData.append("file", file);
           formData.append("country", selectedOptions.country);
@@ -85,6 +89,7 @@ function Attributes() {
               : "M";
           formData.append("frequency", frequencyChar);
 
+          // Sending POST request to server
           const response = await axios.post(
             "http://127.0.0.1:5000/predict",
             formData,
@@ -97,8 +102,10 @@ function Attributes() {
 
           const data = response.data;
           console.log("Server response:", data);
+
+          // Setting last date from input
           const keys = Object.keys(data);
-          const lastKey = keys[keys.length - 10];
+          const lastKey = keys[keys.length - 1];
           const lastValue = data[lastKey];
 
           sessionStorage.setItem("lastValue", JSON.stringify(lastValue));
@@ -116,6 +123,7 @@ function Attributes() {
   const [isFileClicked, setFileClicked] = useState(false);
 
   return (
+    // Displaying the entire list of attributes needed for the operation of the AI model, individual attributes are displayed in SelectItem
     <div>
       <div className="top-[40x] h-[60px]">
         <SelectItem
@@ -125,7 +133,7 @@ function Attributes() {
           defaultValue={selectedOptions.businessType}
         />
       </div>
-      <div className="">
+      <div>
         <SelectItem
           formName="Kraj"
           listData={country}
@@ -134,7 +142,7 @@ function Attributes() {
         />
       </div>
 
-      <div className="" style={{ marginTop: "10px" }}>
+      <div className="mt-[10px]">
         <SelectItem
           formName="Cykliczność predykcji"
           listData={predictionFrequency}
@@ -144,7 +152,7 @@ function Attributes() {
           defaultValue={selectedOptions.predictionFrequency}
         />
       </div>
-      <div className="" style={{ marginTop: "10px" }}>
+      <div className="mt-[10px]">
         <SelectItem
           formName="Sprzedaż w niedziele niehandlowe"
           listData={sunday}
@@ -167,16 +175,15 @@ function Attributes() {
           type="file"
           accept=".xlsx, .txt, .csv"
           ref={fileInputRef}
-          style={{ display: "none" }}
+          className="hidden"
           onChange={handleFileChange}
         />
         <button
-          className={`py-2 bg-ifirma-orange text-black font-bold rounded-full transition duration-150 ease-in-out transform ${
+          className={`py-2 bg-ifirma-orange text-black font-bold rounded-full transition duration-150 ease-in-out transform w-[200px] ${
             isFileClicked
               ? "scale-90 opacity-75"
               : "hover:bg-ifirma-orange-darker hover:scale-105 active:scale-95"
           }`}
-          style={{ width: "200px" }}
           onClick={() => {
             setFileClicked(true);
             fileInputRef.current.click();

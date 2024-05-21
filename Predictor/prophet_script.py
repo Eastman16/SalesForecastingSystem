@@ -393,10 +393,11 @@ def useProphet(country, industry, isRetail, periods, freq, df):
     forecast = m.predict(future)
     for i in range(len(df['y'])):
         if pd.notna(df['y'].iloc[i]):
-            forecast['yhat'].iloc[i] = df['y'].iloc[i]
+            forecast.loc[i, 'yhat'] = (df['y'].iloc[i])
+                                        #.astype(dtype='float64'))
     #forecast[['yhat', 'yhat_lower']] = np.clip(forecast[['yhat', 'yhat_lower']], 0.0, 99999999)
 
-
+    #forecast['y'].clip(lower=0)
 
     forecast['ds'] = forecast['ds'].dt.strftime("%Y-%m-%d")
 

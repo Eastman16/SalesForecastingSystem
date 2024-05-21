@@ -397,8 +397,8 @@ def useProphet(country, industry, isRetail, periods, freq, df):
                                         #.astype(dtype='float64'))
     #forecast[['yhat', 'yhat_lower']] = np.clip(forecast[['yhat', 'yhat_lower']], 0.0, 99999999)
 
+    forecast['yhat'] = pd.to_numeric(forecast['yhat']).clip(lower=0)
 
-    forecast['yhat'] = forecast['yhat'].clip(lower=0)
     forecast['ds'] = forecast['ds'].dt.strftime("%Y-%m-%d")
 
 

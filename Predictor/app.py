@@ -41,8 +41,10 @@ def connecttomodel():
           freq = 'D' if request.form.get('frequency') == None else request.form.get('frequency')
           file.save("woof.csv") #TODO: Dont do it like that
 
-          df = pd.read_csv("woof.csv")
-          #df = df.tail(-1)
+          df = pd.read_csv("woof.csv", header=None, names=['ds', 'y'])
+          if df['ds'][0] == "ds":
+               df = df.tail(-1)
+ 
           os.remove("woof.csv")
           data = prophet_script.useProphet(country, industry, isRetail, period, freq, df)
           # rm file?

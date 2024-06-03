@@ -5,6 +5,7 @@ import flask
 import pandas as pd
 from flask import Flask, request
 import prophet_script
+import json
 
 
 from flask_cors import CORS
@@ -44,7 +45,7 @@ def connecttomodel():
           df = pd.read_csv("woof.csv", header=None, names=['ds', 'y'])
           if df['ds'][0] == "ds":
                df = df.tail(-1)
- 
+
           os.remove("woof.csv")
           data = prophet_script.useProphet(country, industry, isRetail, period, freq, df)
           # rm file?
@@ -54,6 +55,16 @@ def connecttomodel():
      except Exception as e:
           print(e)
           return ['Incorrect parameters', 400]
+
+@app.route("/store-keys", methods=['POST'])
+def storekeys():
+     data = request.form.to_dict()
+     path = data.get("user-id")
+
+     with open(path, 'w') as f:
+          json.dump(data, f, indent=4)
+
+     return
 
 @app.route("/predict", methods=['GET'])
 def localconnecttomodel():
@@ -78,5 +89,5 @@ def localconnecttomodel():
           return ['Incorrect parameters', 400]
 
 if __name__ == '__main__':
-     app.run(debug=True, host="0.0.0.0")
+     app.run(debug=True, host="0.0.0.0", ssl_context='adhoc')
 

@@ -103,7 +103,7 @@ function AttributesWoo() {
   const generateShopKeys = async (e) => {
     e.preventDefault();
     const domain = document.getElementById('domain').value;
-    const returnurl = "http://127.0.0.1:3000/woo-sales?d=${domain}";
+    const returnurl = `http://127.0.0.1:3000/woo-sales?d=${domain}`;
     const callbackurl = "https://127.0.0.1:5000/store-keys"; 
     if (domain) {
       window.location.href = `https://${domain}/wc-auth/v1/authorize?app_name=SalesDataPredictor&scope=read&user_id=${domain}&return_url=${returnurl}/import-woo-sale&callback_url=${callbackurl}`;

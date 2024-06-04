@@ -8,6 +8,7 @@ import ImportWooS from "./components/ImportWooSales";
 import OutputSales from "./components/OutputSales";
 import OutputChart from "./components/OutputChart";
 import OutputTable from "./components/OutputTable";
+import WooSales from "./components/WooSales";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/chart" element={<OutputChart />} />
         <Route path="/table" element={<OutputTable />} />
         <Route path="/output-sales" element={<OutputSales />} />
+        <Route path="/woo-sales" element={<WooSales />}/>
       </Routes>
     </Router>
   );

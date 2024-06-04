@@ -6,9 +6,11 @@ import pandas as pd
 from flask import Flask, request
 import prophet_script
 import json
-
+import requests
 
 from flask_cors import CORS
+
+from woocommerce import API
 
 ALLOWED_EXTENSIONS = {'txt', 'xlsx', 'csv'}
 
@@ -23,6 +25,7 @@ def allowed_file(filename):
 @app.route("/", methods=['GET', 'POST'])
 def asdf():
      return "Dupa"
+
 
 @app.route("/predict", methods=['POST'])
 def connecttomodel():
@@ -55,6 +58,40 @@ def connecttomodel():
      except Exception as e:
           print(e)
           return ['Incorrect parameters', 400]
+
+
+@app.route("/predict-woo", methods=['GET'])
+def handleWoo():
+     country = request.args.get('country')
+     industry = request.args.get('industry')
+     isRetail = False if request.args.get('isRetail') == '0' else True
+     period = 30 if request.args.get('period') == None else int(request.form.get('period'))
+     freq = 'D' if request.args.get('frequency') == None else request.form.get('frequency')
+
+     domain = request.args.get('user-id')
+     print(str(abs(hash(domain))))
+
+     print(domain)
+     print(request.args)
+     try:
+          with open(str(abs(hash(domain)))) as json_file:
+               data = json.load(json_file)
+     except Exception as e:
+          return ['No keys', 400, str(e)]
+
+     wcapi = API(
+          url="https://" + domain,
+          consumer_key=data.get("consumer_key"),
+          consumer_secret=data.get("consumer_secret"),
+          wp_api=True,
+          version="wc/v3"
+     )
+
+
+     response = wcapi.get("reports/sales")
+     print(response.text)
+
+     return response.text
 
 @app.route("/store-keys", methods=['POST'])
 def storekeys():

@@ -1,12 +1,10 @@
 import os
 from io import StringIO
 
-import flask
 import pandas as pd
 from flask import Flask, request
 import prophet_script
 import json
-import requests
 
 from flask_cors import CORS
 
@@ -70,9 +68,7 @@ def handleWoo():
 
      domain = request.args.get('user-id')
      print(str(abs(hash(domain))))
-
      print(domain)
-     print(request.args)
      try:
           with open(str(abs(hash(domain)))) as json_file:
                data = json.load(json_file)
@@ -84,21 +80,26 @@ def handleWoo():
           consumer_key=data.get("consumer_key"),
           consumer_secret=data.get("consumer_secret"),
           wp_api=True,
-          version="wc/v3"
+          version="wc/v3",
+          query_string_auth = True
      )
 
+     response = json.loads(wcapi.get("reports/sales").text)[0].get("totals")
 
-     response = wcapi.get("reports/sales")
-     print(response.text)
+     for key in response:
+          response[key] = [key, response[key].get("sales")]
 
-     return response.text
+     df = pd.DataFrame.from_dict(response, orient='index', columns=['ds', 'y'])
+     print(df)
+     data = prophet_script.useProphet(country, industry, isRetail, period, freq, df)
+     return data
 
 @app.route("/store-keys", methods=['POST'])
 def storekeys():
      data = request.form.to_dict()
      path = data.get("user-id")
 
-     with open(path, 'w') as f:
+     with open(str(abs(hash(path))), 'w') as f:
           json.dump(data, f, indent=4)
 
      return

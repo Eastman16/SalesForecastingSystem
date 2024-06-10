@@ -100,18 +100,6 @@ function AttributesWoo() {
 
   const [isFileClickedWoo, setFileClickedWoo] = useState(false);
 
-  const generateShopKeys = async (e) => {
-    e.preventDefault();
-    const domain = document.getElementById('domain').value;
-    const returnurl = `http://127.0.0.1:3000/woo-sales?d=${domain}`;
-    const callbackurl = "https://127.0.0.1:5000/store-keys"; 
-    if (domain) {
-      window.location.href = `https://${domain}/wc-auth/v1/authorize?app_name=SalesDataPredictor&scope=read&user_id=${domain}&return_url=${returnurl}/import-woo-sale&callback_url=${callbackurl}`;
-    } else {
-     alert('Please enter a domain.');
-    }
-  }
-  
   return (
     // Displaying the entire list of attributes needed for the operation of the AI model, individual attributes are displayed in SelectItem
     <div>
@@ -177,7 +165,7 @@ function AttributesWoo() {
               ? "scale-90 opacity-75"
               : "hover:bg-ifirma-orange-darker hover:scale-105 active:scale-95"
           }`}
-          onClick={generateShopKeys}
+          onClick={handleFileChange}
         >
           <div>Wczytaj plik z </div>
           <img

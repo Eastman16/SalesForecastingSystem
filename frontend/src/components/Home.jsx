@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Ifirma from "../assets/ifirma.png";
 import Allegro from "../assets/allegro.png";
-import WooCommerce from "../assets/woocommerce.png";
+
+import ButtonWoocommerce from "./ButtonWoocommerce";
 
 const Home = () => {
   let navigate = useNavigate();
   const [isFileClicked, setFileClicked] = useState(false);
   const [isAllegroClicked, setAllegroClicked] = useState(false);
-  const [isWooClicked, setWooClicked] = useState(false);
 
   // Function to handle button click with navigation and click animation
   const handleButtonClick = (path, setClicked) => {
@@ -62,22 +62,8 @@ const Home = () => {
               </button>
 
               {/* WooCommerce button */}
-              <button
-                onClick={() =>
-                  handleButtonClick("/import-woo-sale", setWooClicked)
-                }
-                className={`bg-ifirma-orange rounded-lg flex justify-center items-center transition duration-150 ease-in-out transform w-[150px] h-[50px] ${
-                  isWooClicked
-                    ? "scale-90 opacity-75"
-                    : "hover:bg-ifirma-orange-darker hover:scale-105 active:scale-95"
-                }`}
-              >
-                <img
-                  src={WooCommerce}
-                  alt="Logo"
-                  className="pt-1 w-[70px] h-auto"
-                />
-              </button>
+              <ButtonWoocommerce></ButtonWoocommerce>
+              
             </div>
           </div>
         </div>

@@ -54,16 +54,16 @@ function AttributesAllegro() {
         }
       );
       const accessToken = response.data.access_token;
-      fetchAllegroSalesReport(accessToken);
+      fetchAllegroPaymentsHistory(accessToken);
     } catch (error) {
       console.error("Error fetching access token:", error);
     }
   };
 
-  const fetchAllegroSalesReport = async (token) => {
+  const fetchAllegroPaymentsHistory = async (token) => {
     try {
-      const response = await axios.get(
-        "https://api.allegro.pl/sale/reports", // Zamień na poprawny endpoint Allegro
+      const paymentsResponse = await axios.get(
+        "https://api.allegro.pl/payments/payment-operations",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -71,31 +71,42 @@ function AttributesAllegro() {
           },
         }
       );
-      const salesData = response.data;
-      console.log("Fetched Allegro sales data:", salesData);
 
-      // Przetwarzanie danych sprzedaży w wymagany format
-      const formattedSalesData = salesData.map((item) => {
-        const date = item.date;
-        const amount = item.amount;
-        return `${date},${amount.toFixed(3)}`;
+      const payments = paymentsResponse.data.paymentOperations;
+
+      // Sumowanie transakcji dla każdego dnia
+      const dailyTotals = payments.reduce((acc, payment) => {
+        const date = payment.occurredAt.split('T')[0];
+        const amount = parseFloat(payment.amount.amount);
+
+        if (!acc[date]) {
+          acc[date] = 0;
+        }
+        acc[date] += amount;
+
+        return acc;
+      }, {});
+
+      // Przetwarzanie danych płatności w wymagany format
+      const formattedPaymentsData = Object.keys(dailyTotals).map((date) => {
+        return `${date},${dailyTotals[date].toFixed(3)}`;
       });
 
-      console.log("Formatted sales data:", formattedSalesData.join("\n"));
+      console.log("Formatted payments data:", formattedPaymentsData.join("\n"));
 
       // Wysyłanie sformatowanych danych do backendu
-      await sendSalesDataToBackend(formattedSalesData.join("\n"));
+      await sendPaymentsDataToBackend(formattedPaymentsData.join("\n"));
     } catch (error) {
-      console.error("Error fetching Allegro sales report:", error);
+      console.error("Error fetching Allegro payments history:", error);
     }
   };
 
-  const sendSalesDataToBackend = async (formattedSalesData) => {
+  const sendPaymentsDataToBackend = async (formattedPaymentsData) => {
     try {
       const response = await axios.post(
         "http://192.168.195.63:5000/predict",
         {
-          salesData: formattedSalesData,
+          salesData: formattedPaymentsData,
           country: selectedOptions.country,
           industry: selectedOptions.businessType,
           isRetail: selectedOptions.sunday === "Tak" ? true : false,
@@ -120,7 +131,7 @@ function AttributesAllegro() {
       console.log("Server response:", response.data);
       navigate("/output-sales");
     } catch (error) {
-      console.error("Error sending sales data to backend:", error);
+      console.error("Error sending payments data to backend:", error);
     }
   };
 

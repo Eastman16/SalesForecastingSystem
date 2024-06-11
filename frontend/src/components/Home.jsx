@@ -3,21 +3,49 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Ifirma from "../assets/ifirma.png";
 import Allegro from "../assets/allegro.png";
-
-import ButtonWoocommerce from "./ButtonWoocommerce";
+import WooCommerce from "../assets/woocommerce.png";
 
 const Home = () => {
   let navigate = useNavigate();
   const [isFileClicked, setFileClicked] = useState(false);
   const [isAllegroClicked, setAllegroClicked] = useState(false);
+  const [isWooClicked, setWooClicked] = useState(false);
 
-  // Function to handle button click with navigation and click animation
+  const CLIENT_ID = "3e70bfb322f446ab836e553d44ef807f"; 
+  const REDIRECT_URI = "https://predykcjakpz.servehttp.com/import-allegro-sale"; 
+  const AUTHORIZATION_ENDPOINT = "https://allegro.pl/auth/oauth/authorize";
+
   const handleButtonClick = (path, setClicked) => {
     setClicked(true);
     setTimeout(() => {
-      setClicked(false); // Reset clicked state to false after delay
+      setClicked(false);
       navigate(path);
     }, 150);
+  };
+
+  const handleAllegroLogin = () => {
+    setAllegroClicked(true);
+    setTimeout(() => {
+      setAllegroClicked(false);
+      const allegroAuthUrl = `${AUTHORIZATION_ENDPOINT}?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}`;
+      window.location.href = allegroAuthUrl;
+    }, 150);
+  };
+
+  const handleWooLogin = (e) => {
+    e.preventDefault();
+    const domain = prompt('Please enter your WooCommerce store domain:', 'domenamojegosklepu.pl');
+    const userId = 'jan'; 
+    const appName = 'SalesPredictor';
+    const scope = 'read';
+    const returnUrl = `https://127.0.0.1:3000/woo-sales`;
+    const callbackUrl = returnUrl; 
+
+    if (domain) {
+      window.location.href = `https://${domain}/wc-auth/v1/authorize?app_name=${appName}&scope=${scope}&user_id=${userId}&return_url=${returnUrl}&callback_url=${callbackUrl}`;
+    } else {
+      alert('Please enter a domain.');
+    }
   };
 
   return (
@@ -49,9 +77,7 @@ const Home = () => {
 
               {/* Allegro button */}
               <button
-                onClick={() =>
-                  handleButtonClick("/import-allegro-sale", setAllegroClicked)
-                }
+                onClick={handleAllegroLogin}
                 className={`bg-ifirma-orange rounded-lg flex justify-center items-center transition duration-150 ease-in-out transform w-[150px] h-[50px] ${
                   isAllegroClicked
                     ? "scale-90 opacity-75"
@@ -62,8 +88,20 @@ const Home = () => {
               </button>
 
               {/* WooCommerce button */}
-              <ButtonWoocommerce></ButtonWoocommerce>
-              
+              <button
+                onClick={handleWooLogin}
+                className={`bg-ifirma-orange rounded-lg flex justify-center items-center transition duration-150 ease-in-out transform w-[150px] h-[50px] ${
+                  isWooClicked
+                    ? "scale-90 opacity-75"
+                    : "hover:bg-ifirma-orange-darker hover:scale-105 active:scale-95"
+                }`}
+              >
+                <img
+                  src={WooCommerce}
+                  alt="Logo"
+                  className="pt-1 w-[70px] h-auto"
+                />
+              </button>
             </div>
           </div>
         </div>

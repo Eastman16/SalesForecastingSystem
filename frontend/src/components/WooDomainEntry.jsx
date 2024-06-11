@@ -4,8 +4,13 @@ const WooDomainEntry = () => {
 
     const handleRedirect = () => {
         const domain = document.getElementById('domain').value;
-        
+        const RETURN_URL = `https://127.0.0.1:3000/import-woo-sale?domain=${domain}`;
+        const CALLBACK_URL = "https://192.168.100.61/store-keys";
         console.log(domain)
+
+        if (domain) {
+            window.location.href = `https://${domain}/wc-auth/v1/authorize?app_name=SalesDataPredictor&scope=read&user_id=${domain}&callback_url=${CALLBACK_URL}&return_url=${RETURN_URL}`;
+        }
     }
 
     return <div className="flex justify-center h-screen pt-[50px]">

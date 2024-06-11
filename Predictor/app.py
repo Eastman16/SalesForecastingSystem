@@ -2,7 +2,7 @@ import os
 from io import StringIO
 
 import pandas as pd
-from flask import Flask, request
+from flask import Flask, request, Response
 import prophet_script
 import json
 
@@ -58,22 +58,23 @@ def connecttomodel():
           return ['Incorrect parameters', 400]
 
 
-@app.route("/predict-woo", methods=['GET'])
+@app.route("/predict-woo", methods=['GET','POST'])
 def handleWoo():
-     country = request.args.get('country')
-     industry = request.args.get('industry')
-     isRetail = False if request.args.get('isRetail') == '0' else True
-     period = 30 if request.args.get('period') == None else int(request.form.get('period'))
-     freq = 'D' if request.args.get('frequency') == None else request.form.get('frequency')
+     country = request.form.get('country')
+     industry = request.form.get('industry')
+     isRetail = False if request.form.get('isRetail') == '0' else True
+     period = 30 if request.form.get('period') == None else int(request.form.get('period'))
+     freq = 'D' if request.form.get('frequency') == None else request.form.get('frequency')
 
-     domain = request.args.get('user-id')
+     domain = request.form.get('user-id')
      print(str(abs(hash(domain))))
      print(domain)
+     print("keys/"+ str(abs(hash(domain))))
      try:
-          with open(str(abs(hash(domain)))) as json_file:
+          with open("keys/"+ str(abs(hash(domain)))) as json_file:
                data = json.load(json_file)
      except Exception as e:
-          return ['No keys', 400, str(e)]
+          return Response('No keys' + str(e), 403)
 
      wcapi = API(
           url="https://" + domain,
@@ -99,7 +100,7 @@ def storekeys():
      data = request.form.to_dict()
      path = data.get("user-id")
 
-     with open(str(abs(hash(path))), 'w') as f:
+     with open("/keys/"+str(abs(hash(path))), 'w') as f:
           json.dump(data, f, indent=4)
 
      return
@@ -128,5 +129,5 @@ def localconnecttomodel():
 
 
 if __name__ == '__main__':
-     app.run(debug=True, host="192.168.100.61", port=443, ssl_context='adhoc')
+     app.run(debug=True, host="0.0.0.0")
 

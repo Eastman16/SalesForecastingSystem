@@ -19,3 +19,6 @@ This project is a sales forecasting system designed specifically for small and m
 ![done2](https://github.com/Eastman16/SalesForecastingSystem/assets/129722863/3c5cdd70-fac6-45eb-a06d-8bfe820484ac)
 ![done3](https://github.com/Eastman16/SalesForecastingSystem/assets/129722863/c6e62989-4fa5-4a60-9b18-174797584c06)
 ![done4](https://github.com/Eastman16/SalesForecastingSystem/assets/129722863/4b4e9ad7-cce2-43fe-bd83-78c8ed23bf30)
+![woologin](https://github.com/Eastman16/SalesForecastingSystem/assets/80850931/b4d72b7b-2eae-4d40-8f4e-6e42a314de56)
+![allegrologin](https://github.com/Eastman16/SalesForecastingSystem/assets/80850931/68b12676-d9f6-4f74-a6d5-80b99b269a08)
+
